@@ -11,13 +11,12 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "db-time-traveler",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Update datetimes and timestamps of columns on Relational Database",
+	Long: `
+db-time-traveler rewrites the time of records in a relational database together. You specify a table name, and db-time-traveler will rewind that record by the specified amount of time, as if it had been created in the past.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+For columns of type DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
+`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
