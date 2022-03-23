@@ -5,3 +5,4 @@ var password string
 var host string
 var port int
 var schema string
+var table string

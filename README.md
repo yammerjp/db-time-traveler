@@ -118,7 +118,7 @@ Example:
   --database maindb
 ```
 
-### table (unimplemented)
+### table
 
 Central table name (the table specified in the FROM clause of a SELECT statement or the UPDATE clause of an UPDATE statement)
 

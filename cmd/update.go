@@ -29,7 +29,7 @@ to quickly create a Cobra application.`,
 			Schema:   schema,
 		}
 
-		system.SelectColumns(dap)
+		system.SelectAndPrintColumns(dap, table)
 	},
 }
 
@@ -40,4 +40,5 @@ func init() {
 	updateCmd.Flags().StringVarP(&host, "host", "", "localhost", "Hostname or IPv4 address for Database Connection")
 	updateCmd.Flags().IntVarP(&port, "port", "", 3306, "Port number for Database Connection")
 	updateCmd.Flags().StringVarP(&schema, "schema", "s", "", "Schema name for Database Connection")
+	updateCmd.Flags().StringVarP(&table, "table", "", "", "Table name")
 }
