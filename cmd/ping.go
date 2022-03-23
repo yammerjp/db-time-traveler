@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"database/sql"
-	"log"
-
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
+	"github.com/yammerjp/db-time-traveler/system"
 )
 
 // pingCmd represents the ping command
@@ -14,16 +11,7 @@ var pingCmd = &cobra.Command{
 	Short: "Try to connect to a relational database",
 	Long:  `Try to connect to a relational database`,
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := sql.Open("mysql", "root:password@/sampleschema")
-		if err != nil {
-			panic(err)
-		}
-		defer db.Close()
-		if err := db.Ping(); err != nil {
-			log.Fatal("PingError: ", err)
-		} else {
-			log.Println("Ping Success!")
-		}
+		system.Ping()
 	},
 }
 
