@@ -9,15 +9,15 @@ import (
 )
 
 type DatabaseAccessPoint struct {
-	username string
-	password string
-	host     string
-	port     int
-	schema   string
+	Username string
+	Password string
+	Host     string
+	Port     int
+	Schema   string
 }
 
 func (p DatabaseAccessPoint) toString() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", p.username, p.password, p.host, p.port, p.schema)
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", p.Username, p.Password, p.Host, p.Port, p.Schema)
 }
 
 func (p DatabaseAccessPoint) connect() (*sql.DB, error) {

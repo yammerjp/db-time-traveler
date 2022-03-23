@@ -4,14 +4,7 @@ import (
 	"log"
 )
 
-func Ping() {
-	dap := &DatabaseAccessPoint{
-		username: "root",
-		password: "password",
-		host:     "127.0.0.1",
-		port:     3306,
-		schema:   "sampleschema",
-	}
+func Ping(dap *DatabaseAccessPoint) {
 	db, err := dap.connect()
 
 	if err != nil {

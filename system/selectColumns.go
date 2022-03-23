@@ -5,15 +5,7 @@ import (
 	"log"
 )
 
-func SelectColumns() {
-	dap := &DatabaseAccessPoint{
-		username: "root",
-		password: "password",
-		host:     "127.0.0.1",
-		port:     3306,
-		schema:   "sampleschema",
-	}
-
+func SelectColumns(dap *DatabaseAccessPoint) {
 	db, err := dap.connect()
 	if err != nil {
 		panic(err)

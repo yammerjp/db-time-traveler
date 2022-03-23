@@ -24,7 +24,9 @@ db-time-traveler \
   --past 1month \
   --host 127.0.0.1 \
   --port 3306 \
-  --database main-db \
+  --user username \
+  --password password \
+  --schema main-db \
   --table accounts \
   --join contracts \
   -on contracts.account_id=accounts.id \
@@ -55,7 +57,7 @@ Example:
   --past 30minutes
 ```
 
-### host (unimplemented)
+### host
 
 Host name or IPv4 address to connect to
 
@@ -68,7 +70,7 @@ Example:
   --host example.com
 ```
 
-### port (unimplemented)
+### port
 
 Destination port number
 
@@ -80,9 +82,33 @@ Example:
   --port 3306
 ```
 
-### database (unimplemented)
+### user
 
-Database name to connect to
+Username for Database Connection
+
+Acceptable: `any string`
+
+Example:
+
+```
+  --user root
+```
+
+### password
+
+Password for Database Connection
+
+Acceptable: `any string`
+
+Example:
+
+```
+  --password pa55w0rd
+```
+
+### schema
+
+Database schema name to connect to
 
 Acceptable: `[a-z0-9\-]+`
 
