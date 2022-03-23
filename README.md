@@ -26,9 +26,9 @@ db-time-traveler \
   --database main-db \
   --table accounts \
   --join contracts \
- -on contracts.account_id=accounts.id \
- --where accounts.id=35 \
- --ignore contracts.updated_at
+  -on contracts.account_id=accounts.id \
+  --where accounts.id=35 \
+  --ignore contracts.updated_at
 ```
 
 The above command example represents the following actions
