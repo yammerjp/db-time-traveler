@@ -20,6 +20,7 @@ It is a CLI that can execute the following commands
 
 ```bash
 db-time-traveler \
+  update
   --past 1month \
   --host 127.0.0.1 \
   --port 3306 \
