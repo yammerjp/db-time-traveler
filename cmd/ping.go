@@ -7,13 +7,6 @@ import (
 	"github.com/yammerjp/db-time-traveler/system"
 )
 
-var username string
-var password string
-var host string
-var port int
-var schema string
-
-// pingCmd represents the ping command
 var pingCmd = &cobra.Command{
 	Use:   "ping",
 	Short: "Try to connect to a relational database",
