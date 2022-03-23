@@ -5,23 +5,29 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"database/sql"
+	"log"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 )
 
 // pingCmd represents the ping command
 var pingCmd = &cobra.Command{
 	Use:   "ping",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Try to connect to a relational database",
+	Long:  `Try to connect to a relational database`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("ping called")
+		db, err := sql.Open("mysql", "root:password@/sampleschema")
+		if err != nil {
+			panic(err)
+		}
+		defer db.Close()
+		if err := db.Ping(); err != nil {
+			log.Fatal("PingError: ", err)
+		} else {
+			log.Println("Ping Success!")
+		}
 	},
 }
 
