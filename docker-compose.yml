@@ -1,0 +1,12 @@
+version: "3"
+services:
+  mysql:
+    build: ./docker/mysql/
+    volumes:
+      - ./docker/mysql/db:/docker-entrypoint-initdb.d
+    image: db-time-traveler-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - "3306:3306"
+
