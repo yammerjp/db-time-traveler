@@ -1,16 +1,15 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
+	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cobra"
 )
 
-// updateCmd represents the update command
 var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "A brief description of your command",
@@ -22,6 +21,37 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("update called")
+		db, err := sql.Open("mysql", "root:password@/sampleschema")
+		if err != nil {
+			panic(err)
+		}
+		defer db.Close()
+
+		db.SetConnMaxLifetime(time.Minute * 3)
+		db.SetMaxOpenConns(10)
+		db.SetMaxIdleConns(10)
+		rows, err := db.Query("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'accounts'")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		columns := make([]string, 0)
+		dataTypes := make([]string, 0)
+
+		for rows.Next() {
+			var column string
+			var dataType string
+			if err := rows.Scan(&column, &dataType); err != nil {
+				log.Fatal(err)
+			}
+			columns = append(columns, column)
+			dataTypes = append(dataTypes, dataType)
+		}
+
+		for i, column := range columns {
+			fmt.Printf("%40s %40s\n", column, dataTypes[i])
+		}
+
 	},
 }
 
