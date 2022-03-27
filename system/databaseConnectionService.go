@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
-  proxy "github.com/shogo82148/go-sql-proxy"
+	proxy "github.com/shogo82148/go-sql-proxy"
 )
 
 type DatabaseAccessPoint struct {
@@ -51,7 +51,6 @@ func (p DatabaseAccessPoint) connect() (*sql.DB, error) {
 			log.Println("Rollback")
 			return nil
 		},
-
 	}))
 
 	db, err := sql.Open("mysql", p.toString())
@@ -66,5 +65,5 @@ func (p DatabaseAccessPoint) connect() (*sql.DB, error) {
 }
 
 func (p DatabaseAccessPoint) Connect() (*sql.DB, error) {
-  return p.connect()
+	return p.connect()
 }
