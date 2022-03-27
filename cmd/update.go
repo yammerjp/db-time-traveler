@@ -21,24 +21,16 @@ to quickly create a Cobra application.`,
 		if schema == "" {
 			log.Fatal("Need --schema option")
 		}
+		c, err := connection()
+		if err != nil {
+			panic(err)
+		}
+		defer c.Close()
+
 		parsedPast, err := system.ParsePast(past)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		dap := &system.DatabaseAccessPoint{
-			Username: username,
-			Password: password,
-			Host:     host,
-			Port:     port,
-			Schema:   schema,
-		}
-
-		c, err := dap.CreateDatabaseConnection()
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer c.Close()
 
 		if dryRun {
 			primaryKeys, err := c.SelectPrimaryKeyColumns(table)
@@ -74,4 +66,9 @@ func init() {
 	updateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Dry run")
 	updateCmd.Flags().StringVarP(&past, "past", "", "", "rewind date/time")
 	updateCmd.Flags().StringVarP(&primaryKeyRaw, "primary-key-raw", "", "", "Primary Key to specify WHERE IN")
+	updateCmd.Flags().StringVarP(&sshHost, "ssh-host", "", "", "Host name for bastion SSH host")
+	updateCmd.Flags().IntVarP(&sshPort, "ssh-port", "", 22, "Host port number for bastion SSH host")
+	updateCmd.Flags().StringVarP(&sshUser, "ssh-user", "", "", "Host username for bastion SSH host")
+	updateCmd.Flags().StringVarP(&sshKeyPath, "ssh-key-path", "", "~/.ssh/id_rsa", "Private key path for bastion SSH host")
+	updateCmd.Flags().StringVarP(&sshPassphrase, "ssh-passphrase", "", "", "Private key passphrase for bastion SSH host")
 }

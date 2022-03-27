@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -15,7 +16,22 @@ var pingCmd = &cobra.Command{
 		if schema == "" {
 			log.Fatal("Need --schema option")
 		}
+		c, err := connection()
+		if err != nil {
+			panic(err)
+		}
+		defer c.Close()
 
+		if err := c.Ping(); err != nil {
+			log.Fatal("PingError: ", err)
+		} else {
+			log.Println("Ping Success!")
+		}
+	},
+}
+
+func connection() (*system.DatabaseConnection, error) {
+	if sshHost == "" {
 		dap := &system.DatabaseAccessPoint{
 			Username: username,
 			Password: password,
@@ -24,17 +40,27 @@ var pingCmd = &cobra.Command{
 			Schema:   schema,
 		}
 
-		c, err := dap.CreateDatabaseConnection()
-		if err != nil {
-			panic(err)
+		return dap.CreateDatabaseConnection()
+	} else {
+		dapOnSsh := &system.DatabaseAccessPointOnSSH{
+			DB: &system.DB{
+				Host:     host,
+				Port:     fmt.Sprintf("%d", port),
+				User:     username,
+				Password: password,
+				DBName:   schema,
+			},
+			SSH: &system.SSH{
+				Key:        sshKeyPath,
+				Host:       sshHost,
+				User:       sshUser,
+				Port:       fmt.Sprintf("%d", sshPort),
+				Passphrase: sshPassphrase,
+			},
 		}
-		defer c.Close()
-		if err := c.Ping(); err != nil {
-			log.Fatal("PingError: ", err)
-		} else {
-			log.Println("Ping Success!")
-		}
-	},
+		return dapOnSsh.CreateDatabaseConnectionOnSSH()
+	}
+
 }
 
 func init() {
@@ -44,4 +70,9 @@ func init() {
 	pingCmd.Flags().StringVarP(&host, "host", "", "localhost", "Hostname or IPv4 address for Database Connection")
 	pingCmd.Flags().IntVarP(&port, "port", "", 3306, "Port number for Database Connection")
 	pingCmd.Flags().StringVarP(&schema, "schema", "s", "", "Schema name for Database Connection")
+	pingCmd.Flags().StringVarP(&sshHost, "ssh-host", "", "", "Host name for bastion SSH host")
+	pingCmd.Flags().IntVarP(&sshPort, "ssh-port", "", 22, "Host port number for bastion SSH host")
+	pingCmd.Flags().StringVarP(&sshUser, "ssh-user", "", "", "Host username for bastion SSH host")
+	pingCmd.Flags().StringVarP(&sshKeyPath, "ssh-key-path", "", "~/.ssh/id_rsa", "Private key path for bastion SSH host")
+	pingCmd.Flags().StringVarP(&sshPassphrase, "ssh-passphrase", "", "", "Private key passphrase for bastion SSH host")
 }
