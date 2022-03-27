@@ -35,10 +35,9 @@ The above command example represents the following actions
 
 - Connect to MySQL whose IP address is 127.0.0.1 and port number is 3306
 - Manipulate a database named main-db
-- JOIN the "contracts" table to the "accounts" table with the condition "contracts.account_id = accounts.id
-- The records that are filtered by the condition "accounts.id=35" are the target of the operation.
+- The records that are filtered by the primary key "35"
 - Exclude the 'updated_at' column of the "contracts" table from being overwritten
-- Rewinds the date or time of all columns of the first specified table ("accounts") and the JOINed table ("contracts") that are of type DATETIME or TIMESTAMP by one month.
+- Rewinds the date or time of all columns of the first specified table ("accounts") that are of type DATE or DATETIME or TIMESTAMP by one month.
 
 ## Commandline Options
 
@@ -46,12 +45,12 @@ The above command example represents the following actions
 
 The rewind time
 
-Acceptable: `[0-9]+(month|day|hour|minute|second)s?`
+Acceptable: `[0-9]+(month|week|day)`
 
 Example:
 
 ```
-  --past 30minutes
+  --past 2week
 ```
 
 ### host
@@ -112,7 +111,7 @@ Acceptable: `[a-z0-9\-]+`
 Example:
 
 ```
-  --database maindb
+  --schema maindb
 ```
 
 ### table
@@ -152,7 +151,7 @@ Log output destination
 
 Verbose output of execution steps and results
 
-### dry-run (unimplemented)
+### dry-run
 
 Check the UPDATE statement to be executed
 
