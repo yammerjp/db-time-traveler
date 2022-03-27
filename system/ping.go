@@ -5,13 +5,12 @@ import (
 )
 
 func Ping(dap *DatabaseAccessPoint) {
-	db, err := dap.connect()
-
+	c, err := dap.createDatabaseConnection()
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
-	if err := db.Ping(); err != nil {
+	defer c.Close()
+	if err := c.ping(); err != nil {
 		log.Fatal("PingError: ", err)
 	} else {
 		log.Println("Ping Success!")

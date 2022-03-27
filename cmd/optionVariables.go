@@ -9,3 +9,4 @@ var table string
 var dryRun bool
 var wheres []string
 var past string
+var primaryKeyRaw string

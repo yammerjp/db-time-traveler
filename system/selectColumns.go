@@ -237,3 +237,52 @@ TODO: implement to run update statement
   WHERE
     account_id = ...
 */
+
+func (dap *DatabaseAccessPoint) SelectDateRelatedColumns(table string) ([]string, error) {
+	c, err := dap.createDatabaseConnection()
+	if err != nil {
+		return []string{}, err
+	}
+	defer c.Close()
+
+	query, err := selectDateRelatedColumnsQueryBuilder(table)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return c.queryProcessorReturnsSingleColumn(query)
+}
+
+func (dap *DatabaseAccessPoint) SelectDateRelatedColumnValues(table string, primaryKeyValue string) ([]string, [][]string, error) {
+	c, err := dap.createDatabaseConnection()
+	if err != nil {
+		return []string{}, [][]string{}, err
+	}
+	defer c.Close()
+
+	query, err := selectDateRelatedColumnsQueryBuilder(table)
+	if err != nil {
+		return []string{}, [][]string{}, err
+	}
+
+	columns, err := c.queryProcessorReturnsSingleColumn(query)
+	if err != nil {
+		return []string{}, [][]string{}, err
+	}
+
+	query, err = selectPrimaryKeyColumnsQueryBuilder(table)
+	pks, err := c.queryProcessorReturnsSingleColumn(query)
+	if err != nil {
+		return columns, [][]string{}, err
+	}
+	if len(pks) != 1 {
+		return columns, [][]string{}, err
+	}
+
+	query, err = selectTargettedColumnsQueryBuilder(table, columns, pks[0], primaryKeyValue)
+	columnValues, err := c.queryProcessorReturn4Columns(query)
+	if err != nil {
+		return columns, [][]string{}, err
+	}
+	return columns, columnValues, err
+}
