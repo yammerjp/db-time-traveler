@@ -28,10 +28,7 @@ db-time-traveler \
   --password password \
   --schema main-db \
   --table accounts \
-  --join contracts \
-  -on contracts.account_id=accounts.id \
-  --where accounts.id=35 \
-  --ignore contracts.updated_at
+  --primary-key-raw 35 \
 ```
 
 The above command example represents the following actions
@@ -45,7 +42,7 @@ The above command example represents the following actions
 
 ## Commandline Options
 
-### past (unimplemented)
+### past
 
 The rewind time
 
@@ -128,43 +125,6 @@ Example:
 
 ```
   --table accounts
-```
-
-### join (unimplemented)
-
-Table name to be joined
-(Must be used with the --on option.)
-
-Acceptable: `<table name>`
-
-Example:
-
-```
-  --join contracts --on contracts.account_id = accounts.id
-```
-
-### on (unimplemented)
-
-Conditions to join
-
-Acceptable: `<SQL expression>`
-
-Example:
-
-```
-  --join contracts --on contracts.account_id = accounts.id
-```
-
-### where (unimplemented)
-
-Conditions to refine
-
-Acceptable: `<SQL expression>`
-
-Example:
-
-```
-  --where accounts.id=35
 ```
 
 ### ignore (unimplemented)

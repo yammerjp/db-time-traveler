@@ -21,8 +21,9 @@ to quickly create a Cobra application.`,
 		if schema == "" {
 			log.Fatal("Need --schema option")
 		}
-		if past != "1month" {
-			log.Fatal("past without 1month is not supported yet")
+		parsedPast, err := system.ParsePast(past)
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		dap := &system.DatabaseAccessPoint{
@@ -47,7 +48,7 @@ to quickly create a Cobra application.`,
 			if len(primaryKeys) != 1 {
 				log.Fatal("Multiple column primary keys is not supported")
 			}
-			primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, "1 MONTH", primaryKeyRaw)
+			primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, parsedPast, primaryKeyRaw)
 			for i := range primaryKeyValues {
 				for j := range columns {
 					fmt.Printf("%s: %s\n  %s:\n    before: %s\n    after:  %s\n", primaryKeys[0], primaryKeyValues[i], columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
