@@ -5,7 +5,7 @@ import (
 )
 
 func Ping(dap *DatabaseAccessPoint) {
-	c, err := dap.createDatabaseConnection()
+	c, err := dap.CreateDatabaseConnection()
 	if err != nil {
 		panic(err)
 	}
