@@ -179,7 +179,7 @@ func SelectToUpdate(db *sql.DB, tableName string, columnNames []TimeRelatedColum
 	return nil
 }
 
-func updateQueryBuilder(tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) (string, []interface{}, error) {
+func updateQueryBuilderOrg(tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) (string, []interface{}, error) {
 	query := "UPDATE " + tableName + " SET"
 	params := []interface{}{}
 	for i, v := range columnNames {
@@ -208,7 +208,7 @@ func updateQueryBuilder(tableName string, columnNames []TimeRelatedColumn, where
 }
 
 func Update(db *sql.DB, tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) error {
-	query, params, err := updateQueryBuilder(tableName, columnNames, wheres)
+	query, params, err := updateQueryBuilderOrg(tableName, columnNames, wheres)
 	if err != nil {
 		return err
 	}
