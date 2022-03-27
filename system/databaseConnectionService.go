@@ -64,6 +64,21 @@ func (p DatabaseAccessPoint) connect() (*sql.DB, error) {
 	return db, nil
 }
 
-func (p DatabaseAccessPoint) Connect() (*sql.DB, error) {
-	return p.connect()
+type DatabaseConnection struct {
+	connection *sql.DB
+}
+
+func (dap *DatabaseAccessPoint) CreateDatabaseConnection() (*DatabaseConnection, error) {
+	db, err := dap.connect()
+	if err != nil {
+		return nil, err
+	}
+	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
+	return &DatabaseConnection{connection: db}, nil
+}
+
+func (c *DatabaseConnection) Close() {
+	c.connection.Close()
 }

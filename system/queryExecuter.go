@@ -3,29 +3,9 @@ package system
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"time"
 )
 
-type DatabaseConnection struct {
-	connection *sql.DB
-}
-
-func (dap *DatabaseAccessPoint) CreateDatabaseConnection() (*DatabaseConnection, error) {
-	db, err := sql.Open("mysql", dap.toString())
-	if err != nil {
-		return nil, err
-	}
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
-	return &DatabaseConnection{connection: db}, nil
-}
-
-func (c *DatabaseConnection) Close() {
-	c.connection.Close()
-}
-
-func (c *DatabaseConnection) ping() error {
+func (c *DatabaseConnection) Ping() error {
 	return c.connection.Ping()
 }
 

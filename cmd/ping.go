@@ -24,7 +24,16 @@ var pingCmd = &cobra.Command{
 			Schema:   schema,
 		}
 
-		system.Ping(dap)
+		c, err := dap.CreateDatabaseConnection()
+		if err != nil {
+			panic(err)
+		}
+		defer c.Close()
+		if err := c.Ping(); err != nil {
+			log.Fatal("PingError: ", err)
+		} else {
+			log.Println("Ping Success!")
+		}
 	},
 }
 
