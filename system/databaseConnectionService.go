@@ -1,11 +1,16 @@
 package system
 
 import (
+	"context"
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+  proxy "github.com/shogo82148/go-sql-proxy"
 )
 
 type DatabaseAccessPoint struct {
@@ -17,10 +22,38 @@ type DatabaseAccessPoint struct {
 }
 
 func (p DatabaseAccessPoint) toString() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", p.Username, p.Password, p.Host, p.Port, p.Schema)
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", p.Username, p.Password, p.Host, p.Port, p.Schema)
 }
 
 func (p DatabaseAccessPoint) connect() (*sql.DB, error) {
+	sql.Register("mysql-proxy", proxy.NewProxyContext(&mysql.MySQLDriver{}, &proxy.HooksContext{
+		Open: func(_ context.Context, _ interface{}, conn *proxy.Conn) error {
+			log.Println("Open")
+			return nil
+		},
+		Exec: func(_ context.Context, _ interface{}, stmt *proxy.Stmt, args []driver.NamedValue, result driver.Result) error {
+			log.Printf("Exec: %s; args = %v\n", stmt.QueryString, args)
+			return nil
+		},
+		Query: func(_ context.Context, _ interface{}, stmt *proxy.Stmt, args []driver.NamedValue, rows driver.Rows) error {
+			log.Printf("Query: %s; args = %v\n", stmt.QueryString, args)
+			return nil
+		},
+		Begin: func(_ context.Context, _ interface{}, conn *proxy.Conn) error {
+			log.Println("Begin")
+			return nil
+		},
+		Commit: func(_ context.Context, _ interface{}, tx *proxy.Tx) error {
+			log.Println("Commit")
+			return nil
+		},
+		Rollback: func(_ context.Context, _ interface{}, tx *proxy.Tx) error {
+			log.Println("Rollback")
+			return nil
+		},
+
+	}))
+
 	db, err := sql.Open("mysql", p.toString())
 	if err != nil {
 		return nil, err
@@ -30,4 +63,8 @@ func (p DatabaseAccessPoint) connect() (*sql.DB, error) {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 	return db, nil
+}
+
+func (p DatabaseAccessPoint) Connect() (*sql.DB, error) {
+  return p.connect()
 }

@@ -1,9 +1,11 @@
 package system
 
 import (
-	"fmt"
+	"errors"
+  "fmt"
 	"log"
 	"strings"
+	"database/sql"
 )
 
 func SelectAndPrintColumns(dap *DatabaseAccessPoint, tableName string) {
@@ -11,53 +13,41 @@ func SelectAndPrintColumns(dap *DatabaseAccessPoint, tableName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s\n", trcs.toString())
+  lines := []string{}
+  for _, v := range trcs {
+    lines = append(lines, v.ToString())
+  }
+	fmt.Print(strings.Join(lines, "\n"))
 }
 
-type TimeRelatedColumns struct {
-	Date        []string
-	Time        []string
-	DateTime    []string
-	Timestamp   []string
-	PrimaryKeys []string
-}
-
-func (trcs *TimeRelatedColumns) toString() string {
-	lines := make([]string, 0)
-	for _, column := range trcs.Date {
-		lines = append(lines, fmt.Sprintf("Date        %40s", column))
-	}
-	for _, column := range trcs.Time {
-		lines = append(lines, fmt.Sprintf("Time        %40s", column))
-	}
-	for _, column := range trcs.DateTime {
-		lines = append(lines, fmt.Sprintf("DateTime    %40s", column))
-	}
-	for _, column := range trcs.Timestamp {
-		lines = append(lines, fmt.Sprintf("Timestamp   %40s", column))
-	}
-	for _, column := range trcs.PrimaryKeys {
-		lines = append(lines, fmt.Sprintf("PrimaryKeys %40s", column))
-	}
-
-	return strings.Join(lines, "\n")
-}
-
-func (dap *DatabaseAccessPoint) SelectColumns(tableName string) (*TimeRelatedColumns, error) {
+func (dap *DatabaseAccessPoint) SelectColumns(tableName string) ([]TimeRelatedColumn, error) {
 	db, err := dap.connect()
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ?", tableName)
+  return SelectColumns(db, tableName)
+}
+
+func SelectColumns(db *sql.DB, tableName string) ([]TimeRelatedColumn, error) {
+  query := "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS"
+  params := []interface{}{}
+
+  if (tableName != "") {
+    query += " WHERE table_name = ?"
+    params = append(params, tableName)
+  }
+
+	rows, err := db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}
 
-	timeRelatedColumns := TimeRelatedColumns{}
 
+	timeRelatedColumns := []TimeRelatedColumn{}
 	for rows.Next() {
+	  timeRelatedColumn := TimeRelatedColumn{}
 		var column string
 		var dataType string
 		var columnKey string
@@ -66,18 +56,185 @@ func (dap *DatabaseAccessPoint) SelectColumns(tableName string) (*TimeRelatedCol
 		}
 		switch dataType {
 		case "date":
-			timeRelatedColumns.Date = append(timeRelatedColumns.Date, column)
+			timeRelatedColumn.ColumnType = Date
 		case "time":
-			timeRelatedColumns.Time = append(timeRelatedColumns.Time, column)
+			timeRelatedColumn.ColumnType = Time
 		case "datetime":
-			timeRelatedColumns.DateTime = append(timeRelatedColumns.DateTime, column)
+			timeRelatedColumn.ColumnType = DateTime
 		case "timestamp":
-			timeRelatedColumns.Timestamp = append(timeRelatedColumns.Timestamp, column)
+			timeRelatedColumn.ColumnType = Timestamp
 		default:
+      continue
 		}
-		if columnKey == "PRI" {
-			timeRelatedColumns.PrimaryKeys = append(timeRelatedColumns.PrimaryKeys, column)
-		}
+    timeRelatedColumn.IsPrimary = columnKey == "PRI"
+    timeRelatedColumn.Name = column
+
+    timeRelatedColumns = append(timeRelatedColumns, timeRelatedColumn)
 	}
-	return &timeRelatedColumns, nil
+	return timeRelatedColumns, nil
 }
+
+func (dap *DatabaseAccessPoint) SelectToUpdate(tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) error {
+	db, err := dap.connect()
+	if err != nil {
+    return err
+	}
+	defer db.Close()
+  return SelectToUpdate(db, tableName, columnNames, wheres)
+}
+
+func queryBuilder(tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) (string, []interface{}, error) {
+  query := "SELECT"
+  params := []interface{}{}
+
+  for i, v := range columnNames {
+    if i == 0 {
+      query += " ?"
+    } else {
+      query += ", ?"
+    }
+    params = append(params, v.Name)
+  }
+
+  if (tableName == "") {
+    return "", nil, errors.New("Need table name")
+  }
+  // CAUTION: STRING CONCATENATION
+  query += " FROM " + tableName
+
+  for i, v := range wheres {
+    if (v.Operator != "=") {
+      return "", nil, errors.New("Unknown where operator")
+    }
+    if i == 0 {
+      query += " WHERE ? = ?"
+    } else {
+      query += " AND ? = ?"
+    }
+    params = append(params, v.LeftHand)
+    params = append(params, v.RightHand)
+  }
+
+  fmt.Println(query)
+  for i, v := range params {
+    if i == 0 {
+      fmt.Printf("%s", v)
+    } else {
+      fmt.Printf(" %s", v)
+    }
+  }
+  fmt.Printf("\n")
+  return query, params, nil
+}
+
+func SelectToUpdate(db *sql.DB, tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) error {
+  query, params, err := queryBuilder(tableName, columnNames, wheres)
+  columnValues := []interface{}{}
+  for i := 0; i< len(columnNames); i++ {
+    var columnValue sql.NullString
+    columnValues = append(columnValues, &columnValue)
+  }
+  if err != nil {
+    return err
+  }
+	rows, err := db.Query(query, params...)
+	if err != nil {
+		return err
+	}
+  /*
+  results := make([]interface{}, len(columnNames))
+  for i := range results {
+    results[i] = new(interface{})
+  }
+  pretty := [][]string{}
+  */
+	for rows.Next() {
+    // if err := rows.Scan(results[:]...); err != nil {
+    if err := rows.Scan(columnValues...); err != nil {
+      return err
+		}
+    for _, v := range columnValues {
+      fmt.Printf("%s", v)
+    }
+    /*
+    cur := make([]string, len(columnNames))
+    for i := range results {
+      
+      val := *results[i].(*interface{})
+      cur[i] = fmt.Sprintf("%s", val)
+      fmt.Printf("%s", *results[i].(*interface{}))
+    }
+    pretty = append(pretty, cur)
+  */
+  }
+  /*
+  for i, v := range results {
+    columnValues := []string{}
+    for _, w := range v {
+      columnValues = append(columnValues, fmt.printf("%s", w))
+    }
+    
+    fmt.Printf("%4d: %s\n", i, strings.Join(columnValues, ", "))
+  }
+  */
+  return nil
+}
+
+func updateQueryBuilder(tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause) (string, []interface{}, error){
+  query := "UPDATE " + tableName + " SET"
+  params := []interface{}{}
+  for i, v := range columnNames {
+    if i == 0 {
+      query += fmt.Sprintf(" %s = (%s - INTERVAL 1 MONTH)", v.Name, v.Name)
+      // query += " ? = (? - INTERVAL 1 MONTH)"
+    } else {
+      query += fmt.Sprintf(", %s = (%s - INTERVAL 1 MONTH)", v.Name, v.Name)
+      //query += ", ? = (? - INTERVAL 1 MONTH)"
+    }
+    // params = append(params, v.Name, v.Name)
+  }
+
+  for i, v := range wheres {
+    if (v.Operator != "=") {
+      return "", nil, errors.New("Unknown where operator")
+    }
+    if i == 0 {
+      query += " WHERE `?` = `?`"
+    } else {
+      query += " AND ? = ?"
+    }
+    params = append(params, v.LeftHand, v.RightHand)
+  }
+  return query, params, nil
+}
+
+func Update(db *sql.DB, tableName string, columnNames []TimeRelatedColumn, wheres[]WhereClause) error {
+  query, params, err := updateQueryBuilder(tableName, columnNames, wheres)
+  if err != nil {
+    return err
+  }
+  result, err := db.Exec(query, params...)
+  if err != nil {
+    return err
+  }
+  id, err := result.LastInsertId()
+  if err != nil {
+    return err
+  }
+
+  fmt.Printf("Last Insert Id: %10d", id)
+  return nil
+}
+
+/*
+TODO: implement to run update statement
+  UPDATE
+    accounts
+  SET
+    trial_end_date = (trail_end_date - INTERVAL 1 MONTH),
+    registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH),
+    created_at = (created_at - INTERVAL 1 MONTH),
+    updated_at = (updated_at - INTERVAL 1 MONTH)
+  WHERE
+    account_id = ...
+*/
