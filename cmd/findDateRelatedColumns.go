@@ -24,8 +24,10 @@ var findDateRelatedColumnsCmd = &cobra.Command{
 			Port:     port,
 			Schema:   schema,
 		}
+		c, err := dap.CreateDatabaseConnection()
+		defer c.Close()
 
-		columns, err := dap.SelectDateRelatedColumns(table)
+		columns, err := c.SelectDateRelatedColumns(table)
 		if err != nil {
 			log.Fatal("returned error:" + err.Error())
 		}

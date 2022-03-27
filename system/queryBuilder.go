@@ -124,3 +124,13 @@ func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
 	query += " AND COLUMN_KEY = \"PRI\""
 	return query, nil
 }
+
+func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, interval string, primaryKey string, whereInStmt string) (string, error) {
+	query := "SELECT " + primaryKey
+	for _, column := range columns {
+		query += ", " + column + ", " + column + " - INTERVAL " + interval
+	}
+	query += " FROM " + targetTable
+	query += " WHERE " + primaryKey + " IN ( " + whereInStmt + " )"
+	return query, nil
+}

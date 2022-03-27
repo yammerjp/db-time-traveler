@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -21,22 +21,6 @@ to quickly create a Cobra application.`,
 		if schema == "" {
 			log.Fatal("Need --schema option")
 		}
-		if !dryRun {
-			log.Fatal("real run is not supported yet")
-		}
-
-		whereClauses := []system.WhereClause{}
-		for _, v := range wheres {
-
-			whereClause, err := system.ParseWhereClause(v)
-			if err != nil {
-				log.Fatal(err)
-			}
-			if whereClause.Operator != "=" {
-				log.Fatal(errors.New("Unsupported where clause's operator"))
-			}
-			whereClauses = append(whereClauses, *whereClause)
-		}
 		if past != "1month" {
 			log.Fatal("past without 1month is not supported yet")
 		}
@@ -49,19 +33,31 @@ to quickly create a Cobra application.`,
 			Schema:   schema,
 		}
 
-		db, err := dap.Connect()
+		c, err := dap.CreateDatabaseConnection()
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer db.Close()
+		defer c.Close()
 
-		trcs, err := system.SelectColumns(db, table)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// if err := system.SelectToUpdate(db, table, trcs, whereClauses); err != nil {
-		if err := system.Update(db, table, trcs, whereClauses); err != nil {
-			log.Fatal(err)
+		if dryRun {
+			primaryKeys, err := c.SelectPrimaryKeyColumns(table)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if len(primaryKeys) != 1 {
+				log.Fatal("Multiple column primary keys is not supported")
+			}
+			primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, "1 MONTH", primaryKeyRaw)
+			for i := range primaryKeyValues {
+				for j := range columns {
+					fmt.Printf("%s: %s\n  %s:\n    before: %s\n    after:  %s\n", primaryKeys[0], primaryKeyValues[i], columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
+				}
+			}
+		} else {
+			if err := c.Update(table, "1 MONTH", primaryKeyRaw); err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("updated successfully")
 		}
 	},
 }
@@ -75,6 +71,6 @@ func init() {
 	updateCmd.Flags().StringVarP(&schema, "schema", "s", "", "Schema name for Database Connection")
 	updateCmd.Flags().StringVarP(&table, "table", "", "", "Table name")
 	updateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Dry run")
-	updateCmd.Flags().StringSliceVarP(&wheres, "where", "w", []string{}, "Conditions to refine")
 	updateCmd.Flags().StringVarP(&past, "past", "", "", "rewind date/time")
+	updateCmd.Flags().StringVarP(&primaryKeyRaw, "primary-key-raw", "", "", "Primary Key to specify WHERE IN")
 }
