@@ -4,7 +4,29 @@ import (
 	"errors"
 )
 
-// tableName string, columnNames []TimeRelatedColumn, wheres []WhereClause
+type QueryBuilderSourceForSchemaInformation struct {
+	targetTable string
+}
+
+type QueryBuilderSourceForColumnValues struct {
+	columns     []string
+	primaryKey  string
+	whereInStmt string
+	QueryBuilderSourceForSchemaInformation
+}
+
+type QueryBuilderSourceToUpdate struct {
+	interval string
+	QueryBuilderSourceForColumnValues
+}
+
+func (q *QueryBuilderSourceToUpdate) buildToUpdate() (string, error) {
+	if q == nil {
+		return "", errors.New("QueryBuilderSource is nil on building query")
+	}
+	return updateQueryBuilder(q.targetTable, q.columns, q.interval, q.primaryKey, q.whereInStmt)
+}
+
 func updateQueryBuilder(targetTable string, columns []string, interval string, primaryKey string, whereInStmt string) (string, error) {
 	query := "UPDATE " + targetTable + " SET"
 
@@ -21,6 +43,13 @@ func updateQueryBuilder(targetTable string, columns []string, interval string, p
 
 	query += " WHERE " + primaryKey + " IN ( " + whereInStmt + " )"
 	return query, nil
+}
+
+func (q *QueryBuilderSourceForColumnValues) buildToSelect() (string, error) {
+	if q == nil {
+		return "", errors.New("QueryBuilderSource is nil on building query")
+	}
+	return selectTargettedColumnsQueryBuilder(q.targetTable, q.columns, q.primaryKey, q.whereInStmt)
 }
 
 func selectTargettedColumnsQueryBuilder(targetTable string, columns []string, primaryKey string, whereInStmt string) (string, error) {
@@ -41,7 +70,14 @@ func selectTargettedColumnsQueryBuilder(targetTable string, columns []string, pr
 	return query, nil
 }
 
-func selectUpdatingColumnValiesQueryBuilder(targetTable string, columns []string, interval string, primaryKey string, whereInStmt string) (string, error) {
+func (q *QueryBuilderSourceToUpdate) buildToSelect() (string, error) {
+	if q == nil {
+		return "", errors.New("QueryBuilderSource is nil on building query")
+	}
+	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, q.interval, q.primaryKey, q.whereInStmt)
+}
+
+func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string, interval string, primaryKey string, whereInStmt string) (string, error) {
 	query := "SELECT"
 
 	if len(columns) == 0 {
@@ -59,12 +95,26 @@ func selectUpdatingColumnValiesQueryBuilder(targetTable string, columns []string
 	return query, nil
 }
 
+func (q *QueryBuilderSourceForSchemaInformation) buildToSelectDateRelatedColumns() (string, error) {
+	if q == nil {
+		return "", errors.New("QueryBuilderSource is nil on building query")
+	}
+	return selectDateRelatedColumnsQueryBuilder(q.targetTable)
+}
+
 func selectDateRelatedColumnsQueryBuilder(targetTable string) (string, error) {
 	query := "SELECT COLUMN_NAME"
 	query += " FROM INFORMATION_SCHEMA.COLUMNS"
 	query += " WHERE table_name = \"" + targetTable + "\""
 	query += " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")" // + DATA_TYPE = time
 	return query, nil
+}
+
+func (q *QueryBuilderSourceForSchemaInformation) buildToSelectPrimaryColumns() (string, error) {
+	if q == nil {
+		return "", errors.New("QueryBuilderSource is nil on building query")
+	}
+	return selectPrimaryKeyColumnsQueryBuilder(q.targetTable)
 }
 
 func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
