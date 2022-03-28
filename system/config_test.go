@@ -26,7 +26,7 @@ func TestLoadConfigYaml(t *testing.T) {
 			},
 		},
 	}
-	ret, err := loadConfigYaml(home + "/go/src/github.com/yammerjp/db-time-traveler/.db-time-traveler.yml")
+	ret, err := loadConfigFromYaml(home + "/go/src/github.com/yammerjp/db-time-traveler/.db-time-traveler.yml")
 	if err != nil {
 		t.Error(err)
 	}

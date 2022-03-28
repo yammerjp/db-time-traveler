@@ -24,6 +24,10 @@ type DatabaseAccessPoint struct {
 	Schema   string
 }
 
+func (p *DatabaseAccessPoint) ToDescriptiveString() string {
+	return fmt.Sprintf("Host: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s", p.Host, p.Port, p.Schema, p.Username, p.Password)
+}
+
 func (p *DatabaseAccessPoint) toString() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", p.Username, p.Password, p.Host, p.Port, p.Schema)
 }
