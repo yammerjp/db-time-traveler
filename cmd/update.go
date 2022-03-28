@@ -28,7 +28,7 @@ func initUpdate(f *flag.FlagSet) {
 	f.StringVarP(&table, "table", "", "", "Table name")
 	f.BoolVarP(&printQuery, "print-query", "", false, "Print query")
 	f.StringVarP(&past, "past", "", "", "rewind date/time")
-	f.StringVarP(&primaryKeyRaw, "primary-key-raw", "", "", "Primary Key to specify WHERE IN")
+	f.StringVarP(&primaryKeysWhereIn, "primary-keys-where-in", "", "", "Primary Key to specify WHERE IN")
 }
 func update(dryRun bool) {
 	if schema == "" {
@@ -45,14 +45,14 @@ func update(dryRun bool) {
 		log.Fatal(err)
 	}
 
-	beforeAndAfter, err := c.SelectToUpdateToString(table, parsedPast, primaryKeyRaw)
+	beforeAndAfter, err := c.SelectToUpdateToString(table, parsedPast, primaryKeysWhereIn)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(beforeAndAfter)
 
 	if printQuery {
-		query, err := c.UpdateQueryBuilder(table, parsedPast, primaryKeyRaw)
+		query, err := c.UpdateQueryBuilder(table, parsedPast, primaryKeysWhereIn)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -62,7 +62,7 @@ func update(dryRun bool) {
 		return
 	}
 
-	if err := c.Update(table, parsedPast, primaryKeyRaw); err != nil {
+	if err := c.Update(table, parsedPast, primaryKeysWhereIn); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Updated successfully!")

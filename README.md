@@ -28,7 +28,7 @@ db-time-traveler \
   --password password \
   --schema main-db \
   --table accounts \
-  --primary-key-raw 35 \
+  --primary-keys-where-in 35 \
 ```
 
 The above command example represents the following actions
