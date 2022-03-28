@@ -31,9 +31,6 @@ func initUpdate(f *flag.FlagSet) {
 	f.StringVarP(&primaryKeysWhereIn, "primary-keys-where-in", "", "", "Primary Key to specify WHERE IN")
 }
 func update(dryRun bool) {
-	if schema == "" {
-		log.Fatal("Need --schema option")
-	}
 	c, err := connection()
 	if err != nil {
 		panic(err)

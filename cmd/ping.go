@@ -19,9 +19,6 @@ var pingCmd = &cobra.Command{
 }
 
 func ping() {
-	if schema == "" {
-		log.Fatal("Need --schema option")
-	}
 	c, err := connection()
 	if err != nil {
 		panic(err)
@@ -53,7 +50,7 @@ func initConnection(f *flag.FlagSet) {
 	f.StringVarP(&sshHost, "ssh-host", "", "", "Host name for bastion SSH host")
 	f.IntVarP(&sshPort, "ssh-port", "", 22, "Host port number for bastion SSH host")
 	f.StringVarP(&sshUser, "ssh-user", "", "", "Host username for bastion SSH host")
-	f.StringVarP(&sshKeyPath, "ssh-key-path", "", "~/.ssh/id_rsa", "Private key path for bastion SSH host")
+	f.StringVarP(&sshKeyPath, "ssh-key-path", "", "", "Private key path for bastion SSH host")
 	f.StringVarP(&sshPassphrase, "ssh-passphrase", "", "", "Private key passphrase for bastion SSH host")
 	initShowConfigFlg(f)
 	f.StringVarP(&selectedConnection, "connection", "", "", "connection name")

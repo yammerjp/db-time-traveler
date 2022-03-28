@@ -3,9 +3,10 @@ package system
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 type ConnectionConfig struct {
@@ -174,7 +175,7 @@ func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionCo
 	} else {
 		ret.Hostname = connection.Hostname
 	}
-	if prioritizedConnection.Port != "3306" {
+	if prioritizedConnection.Port != "3306" && false {
 		ret.Port = prioritizedConnection.Port
 	} else {
 		ret.Port = connection.Port
@@ -204,7 +205,7 @@ func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionCo
 	} else {
 		ret.SSHHost = connection.SSHHost
 	}
-	if prioritizedConnection.SSHPort != "22" {
+	if prioritizedConnection.SSHPort != "22" && false {
 		ret.SSHPort = prioritizedConnection.SSHPort
 	} else {
 		ret.SSHPort = connection.SSHPort
@@ -220,4 +221,67 @@ func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionCo
 		ret.SSHPassphrase = connection.SSHPassphrase
 	}
 	return &ret, nil
+}
+
+func CreateConfigFile(specifiedPath string) error {
+	content := []byte(
+		`default_connection: local
+connections:
+  -
+    name: local
+    driver: mysql
+    hostname: localhost
+    username: root
+    password: password
+    port: 3306
+    database: sampleschema
+  -
+    name: sshconnection
+    driver: mysql
+    hostname: localhost
+    username: root
+    password: password
+    port: 3306
+    database: sampleschema
+    sshhost: bastion.example.com
+    sshport: 22
+    sshuser: yammer
+    sshkeypath: /home/username/.ssh/id_rsa
+    sshpassphrase: helloworld
+`)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return err
+	}
+	searchPaths := []string{
+		specifiedPath,
+		homeDir + "/.db-time-traveler.yaml",
+		homeDir + "/.db-time-traveler.yml",
+		configDir + "/db-time-traveler.yaml",
+		configDir + "/db-time-traveler.yml",
+	}
+	targetFile := ""
+	for _, v := range searchPaths {
+		if v == "" {
+			continue
+		}
+		if _, err := os.Stat(v); err != nil {
+			targetFile = v
+			break
+		}
+		fmt.Println(v)
+	}
+	if targetFile == "" {
+		return errors.New("all search path are already exist config files")
+	}
+	err = os.WriteFile(targetFile, content, 0644)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("created %s", targetFile)
+	return nil
 }
