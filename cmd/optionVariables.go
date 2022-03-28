@@ -15,3 +15,4 @@ var sshPort int
 var sshUser string
 var sshKeyPath string
 var sshPassphrase string
+var configPath string

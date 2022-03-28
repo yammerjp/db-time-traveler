@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/yammerjp/db-time-traveler/system"
@@ -56,6 +57,11 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	rootCmd.AddCommand(updateCmd)
 	updateCmd.Flags().StringVarP(&username, "user", "u", "root", "Username for Database Connection")
 	updateCmd.Flags().StringVarP(&password, "password", "p", "password", "Password for Database Connection")
@@ -69,6 +75,6 @@ func init() {
 	updateCmd.Flags().StringVarP(&sshHost, "ssh-host", "", "", "Host name for bastion SSH host")
 	updateCmd.Flags().IntVarP(&sshPort, "ssh-port", "", 22, "Host port number for bastion SSH host")
 	updateCmd.Flags().StringVarP(&sshUser, "ssh-user", "", "", "Host username for bastion SSH host")
-	updateCmd.Flags().StringVarP(&sshKeyPath, "ssh-key-path", "", "~/.ssh/id_rsa", "Private key path for bastion SSH host")
+	updateCmd.Flags().StringVarP(&sshKeyPath, "ssh-key-path", "", home+"/.ssh/id_rsa", "Private key path for bastion SSH host")
 	updateCmd.Flags().StringVarP(&sshPassphrase, "ssh-passphrase", "", "", "Private key passphrase for bastion SSH host")
 }
