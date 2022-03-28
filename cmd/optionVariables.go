@@ -6,7 +6,6 @@ var host string
 var port int
 var schema string
 var table string
-var dryRun bool
 var printQuery bool
 var wheres []string
 var past string

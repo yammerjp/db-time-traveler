@@ -138,15 +138,17 @@ func (c *DatabaseConnection) SelectToUpdateToString(table string, interval strin
 		return "", nil
 	}
 	for i, v := range primaryKeyValues {
+		if i != 0 {
+			ret += "\n"
+		}
 		for j, w := range primaryKeys {
 			if j != 0 {
 				ret += ", "
 			}
 			ret += fmt.Sprintf("%s: %s", w, v[j])
 		}
-		ret += "\n"
 		for j := range columns {
-			ret += fmt.Sprintf("  %s:\n    before: %s\n    after:  %s\n", columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
+			ret += fmt.Sprintf("\n  %s:\n    before: %s\n    after:  %s", columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
 		}
 	}
 	return ret, nil

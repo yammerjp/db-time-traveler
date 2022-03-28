@@ -39,18 +39,18 @@ to quickly create a Cobra application.`,
 		}
 		fmt.Println(beforeAndAfter)
 
-		if dryRun {
+		if printQuery {
 			query, err := c.UpdateQueryBuilder(table, parsedPast, primaryKeyRaw)
 			if err != nil {
 				log.Fatal(err)
 			}
 			fmt.Print(query)
-		} else {
-			if err := c.Update(table, parsedPast, primaryKeyRaw); err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println("Updated successfully!")
 		}
+
+		if err := c.Update(table, parsedPast, primaryKeyRaw); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Updated successfully!")
 	},
 }
 
@@ -67,7 +67,7 @@ func init() {
 	updateCmd.Flags().IntVarP(&port, "port", "", 3306, "Port number for Database Connection")
 	updateCmd.Flags().StringVarP(&schema, "schema", "s", "", "Schema name for Database Connection")
 	updateCmd.Flags().StringVarP(&table, "table", "", "", "Table name")
-	updateCmd.Flags().BoolVarP(&dryRun, "dry-run", "", false, "Dry run")
+	updateCmd.Flags().BoolVarP(&printQuery, "print-query", "", false, "Print query")
 	updateCmd.Flags().StringVarP(&past, "past", "", "", "rewind date/time")
 	updateCmd.Flags().StringVarP(&primaryKeyRaw, "primary-key-raw", "", "", "Primary Key to specify WHERE IN")
 	updateCmd.Flags().StringVarP(&sshHost, "ssh-host", "", "", "Host name for bastion SSH host")

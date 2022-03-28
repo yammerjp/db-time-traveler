@@ -13,16 +13,16 @@ var showConfigCmd = &cobra.Command{
 	Short: "show configs",
 	Long:  `show the inner of config yaml such as ~/.db-time-traveler.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config, err := system.LoadConfig(configPath, selectedConnection)
+		config, err := system.LoadConfig(configPath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(config.ToDescriptiveString())
+		fmt.Println(config.ToString())
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(showConfigCmd)
 	showConfigCmd.Flags().StringVarP(&configPath, "config-path", "", "", "config path")
-	showConfigCmd.Flags().StringVarP(&selectedConnection, "connection", "", "", "connection name")
+	// showConftgCmd.Flags().StringVarP(&selectedConnection, "connection", "", "", "connection name")
 }

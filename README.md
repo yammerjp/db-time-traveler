@@ -4,13 +4,13 @@ db-time-traveler
 db-time-traveler rewrites the time of records in a relational database together.
 You specify a table name, and db-time-traveler will rewind that record by the specified amount of time, as if it had been created in the past.
 
-For columns of type DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
+For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
 
 ## Requirement
 
 To develop a function that requires operations to be performed chronologically, we would like to pretend that the records were created in the past for the purpose of debugging in the development environment.
 
-I want to run an UPDATE statement to shift the values of DATETIME and TIMESTAMP type columns to the past by the time specified by the input, after narrowing down the records by specifying the table name.
+I want to run an UPDATE statement to shift the values of DATE or DATETIME and TIMESTAMP type columns to the past by the time specified by the input, after narrowing down the records by specifying the table name.
 
 In addition to the above, it would be nice to have the ability to check the SQL before execution and to rewind the contents of a record after SQL execution as auxiliary functions.
 

@@ -58,7 +58,7 @@ func connection() (*system.DatabaseConnection, error) {
 				Passphrase: sshPassphrase,
 			},
 		}
-		return dapOnSsh.CreateDatabaseConnectionOnSSH()
+		return dapOnSsh.CreateDatabaseConnection()
 	}
 
 }

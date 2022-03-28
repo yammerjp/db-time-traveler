@@ -24,10 +24,6 @@ type DatabaseAccessPoint struct {
 	Schema   string
 }
 
-func (p *DatabaseAccessPoint) ToDescriptiveString() string {
-	return fmt.Sprintf("Host: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s", p.Host, p.Port, p.Schema, p.Username, p.Password)
-}
-
 func (p *DatabaseAccessPoint) toString() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", p.Username, p.Password, p.Host, p.Port, p.Schema)
 }
@@ -74,6 +70,10 @@ func (p *DatabaseAccessPoint) connect() (*sql.DB, error) {
 type DatabaseConnection struct {
 	connection    *sql.DB
 	sshConnection *ssh.Client
+}
+
+type DatabaseAccessPointHub interface {
+	CreateDatabaseConnection() (*DatabaseConnection, error)
 }
 
 func (dap *DatabaseAccessPoint) CreateDatabaseConnection() (*DatabaseConnection, error) {
@@ -163,7 +163,7 @@ func createDBConnection(conf *DB, sshc *ssh.Client) (*sql.DB, error) {
 	return sql.Open("mysql", dbConf.FormatDSN())
 }
 
-func (dapOnSsh *DatabaseAccessPointOnSSH) CreateDatabaseConnectionOnSSH() (*DatabaseConnection, error) {
+func (dapOnSsh *DatabaseAccessPointOnSSH) CreateDatabaseConnection() (*DatabaseConnection, error) {
 	sshConnection, err := createSSHConnection(dapOnSsh.SSH)
 	if err != nil {
 		return nil, err

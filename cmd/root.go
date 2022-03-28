@@ -13,7 +13,7 @@ var rootCmd = &cobra.Command{
 	Long: `
 db-time-traveler rewrites the time of records in a relational database together. You specify a table name, and db-time-traveler will rewind that record by the specified amount of time, as if it had been created in the past.
 
-For columns of type DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
+For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
 `,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
