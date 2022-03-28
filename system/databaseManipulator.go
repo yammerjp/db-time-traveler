@@ -1,7 +1,7 @@
 package system
 
 import (
-	"errors"
+	"fmt"
 )
 
 func (c *DatabaseConnection) SelectDateRelatedColumns(table string) ([]string, error) {
@@ -31,11 +31,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, primary
 	if err != nil {
 		return columns, [][]string{}, err
 	}
-	if len(pks) != 1 {
-		return columns, [][]string{}, errors.New("Support only single primary key")
-	}
-
-	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks[0], primaryKeyValue)
+	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks, primaryKeyValue)
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, err
@@ -53,11 +49,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 	if err != nil {
 		return columns, [][]string{}, err
 	}
-	if len(pks) != 1 {
-		return columns, [][]string{}, errors.New("Support only single primary key")
-	}
-
-	query, err := selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks[0], primaryKeyValue)
+	query, err := selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks, primaryKeyValue)
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, err
@@ -75,17 +67,13 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	if err != nil {
 		return columns, [][]string{}, [][]string{}, err
 	}
-	if len(pks) != 1 {
-		return columns, [][]string{}, [][]string{}, errors.New("Support only single primary key")
-	}
-
-	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks[0], primaryKeyValue)
+	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks, primaryKeyValue)
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, [][]string{}, err
 	}
 
-	query, err = selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks[0], primaryKeyValue)
+	query, err = selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks, primaryKeyValue)
 	columnValuesToBeUpdated, err := c.queryExec(query)
 	if err != nil {
 		return columns, columnValues, [][]string{}, err
@@ -93,37 +81,43 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	return columns, columnValues, columnValuesToBeUpdated, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdate(table string, interval string, primaryKeyValue string) ([]string, []string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval string, primaryKeyValue string) (string, []string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
-		return []string{}, []string{}, [][]string{}, [][]string{}, err
+		return "", []string{}, err
 	}
 
 	pks, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
-		return []string{}, columns, [][]string{}, [][]string{}, err
+		return "", columns, err
 	}
-	if len(pks) != 1 {
-		return []string{}, columns, [][]string{}, [][]string{}, errors.New("Support only single primary key")
-	}
+	query, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	return query, columns, err
+}
 
-	query, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(table, columns, interval, pks[0], primaryKeyValue)
+func (c *DatabaseConnection) SelectToUpdate(table string, interval string, primaryKeyValue string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+	primaryKeys, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
-		return []string{}, columns, [][]string{}, [][]string{}, err
+		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
+	}
+	query, columns, err := c.SelectToUpdateQueryBuilder(table, interval, primaryKeyValue)
+	if err != nil {
+		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
 	selectStmtReturnColumnValues, err := c.queryExec(query)
 	if err != nil {
-		return []string{}, columns, [][]string{}, [][]string{}, err
+		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
-	retPrimaryKeys := []string{}
+	retPrimaryKeys := [][]string{}
 	retColumnValuesBefore := [][]string{}
 	retColumnValuesAfter := [][]string{}
 	for _, v := range selectStmtReturnColumnValues {
+		columnPrimaryKeys := []string{}
 		columnValuesBefore := []string{}
 		columnValuesAfter := []string{}
 		for j, r := range v {
-			if j == 0 {
-				retPrimaryKeys = append(retPrimaryKeys, r)
+			if j < len(primaryKeys) {
+				columnPrimaryKeys = append(columnPrimaryKeys, r)
 			} else if j%2 == 1 {
 				columnValuesBefore = append(columnValuesBefore, r)
 			} else {
@@ -132,25 +126,47 @@ func (c *DatabaseConnection) SelectToUpdate(table string, interval string, prima
 		}
 		retColumnValuesBefore = append(retColumnValuesBefore, append([]string{}, columnValuesBefore...))
 		retColumnValuesAfter = append(retColumnValuesAfter, append([]string{}, columnValuesAfter...))
+		retPrimaryKeys = append(retPrimaryKeys, append([]string{}, columnPrimaryKeys...))
 	}
-	return retPrimaryKeys, columns, retColumnValuesBefore, retColumnValuesAfter, nil
+	return primaryKeys, retPrimaryKeys, columns, retColumnValuesBefore, retColumnValuesAfter, nil
 }
 
-func (c *DatabaseConnection) Update(table string, interval string, primaryKeyValue string) error {
+func (c *DatabaseConnection) SelectToUpdateToString(table string, interval string, primaryKeyValue string) (string, error) {
+	ret := ""
+	primaryKeys, primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, interval, primaryKeyValue)
+	if err != nil {
+		return "", nil
+	}
+	for i, v := range primaryKeyValues {
+		for j, w := range primaryKeys {
+			if j != 0 {
+				ret += ", "
+			}
+			ret += fmt.Sprintf("%s: %s", w, v[j])
+		}
+		ret += "\n"
+		for j := range columns {
+			ret += fmt.Sprintf("  %s:\n    before: %s\n    after:  %s\n", columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
+		}
+	}
+	return ret, nil
+}
+
+func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval string, primaryKeyValue string) (string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	pks, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
-		return err
+		return "", err
 	}
-	if len(pks) != 1 {
-		return errors.New("Support only single primary key")
-	}
+	return updateQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+}
 
-	query, err := updateQueryBuilder(table, columns, interval, pks[0], primaryKeyValue)
+func (c *DatabaseConnection) Update(table string, interval string, primaryKeyValue string) error {
+	query, err := c.UpdateQueryBuilder(table, interval, primaryKeyValue)
 	if err != nil {
 		return err
 	}

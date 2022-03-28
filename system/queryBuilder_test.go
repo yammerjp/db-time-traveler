@@ -7,8 +7,8 @@ import (
 
 func TestUpdateQueryBuilder(t *testing.T) {
 
-	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE account_id IN ( 3 )"
-	ret, err := updateQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", "account_id", "3")
+	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE (id) IN ( 3 )"
+	ret, err := updateQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", []string{"id"}, "3")
 	if err != nil {
 		t.Error(err)
 	}
@@ -19,8 +19,8 @@ func TestUpdateQueryBuilder(t *testing.T) {
 }
 
 func TestSelectTargettedColumnsQueryBuilder(t *testing.T) {
-	expected := "SELECT trial_end_date, registered_campaign_end_datetime, created_at, updated_at FROM accounts WHERE account_id IN ( 3 )"
-	ret, err := selectTargettedColumnsQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "account_id", "3")
+	expected := "SELECT trial_end_date, registered_campaign_end_datetime, created_at, updated_at FROM accounts WHERE (id) IN ( 3 )"
+	ret, err := selectTargettedColumnsQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, []string{"id"}, "3")
 	if err != nil {
 		t.Error(err)
 	}
@@ -31,8 +31,8 @@ func TestSelectTargettedColumnsQueryBuilder(t *testing.T) {
 }
 
 func TestSelectUpdatingColumnValuesQueryBuilder(t *testing.T) {
-	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE account_id IN ( 3 )"
-	ret, err := selectUpdatingColumnValuesQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", "account_id", "3")
+	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
+	ret, err := selectUpdatingColumnValuesQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", []string{"id"}, "3")
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,8 +67,8 @@ func TestSelectPrimaryKeyColumnsQueryBuilder(t *testing.T) {
 }
 
 func TestSelectUpdatingColumnValuesBeforeAdnAfterQueryBUilder(t *testing.T) {
-	expected := "SELECT account_id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE account_id IN ( 3 )"
-	ret, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", "account_id", "3")
+	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
+	ret, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, "1 MONTH", []string{"id"}, "3")
 	if err != nil {
 		t.Error(err)
 	}

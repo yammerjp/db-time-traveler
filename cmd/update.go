@@ -33,25 +33,23 @@ to quickly create a Cobra application.`,
 			log.Fatal(err)
 		}
 
+		beforeAndAfter, err := c.SelectToUpdateToString(table, parsedPast, primaryKeyRaw)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(beforeAndAfter)
+
 		if dryRun {
-			primaryKeys, err := c.SelectPrimaryKeyColumns(table)
+			query, err := c.UpdateQueryBuilder(table, parsedPast, primaryKeyRaw)
 			if err != nil {
 				log.Fatal(err)
 			}
-			if len(primaryKeys) != 1 {
-				log.Fatal("Multiple column primary keys is not supported")
-			}
-			primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, parsedPast, primaryKeyRaw)
-			for i := range primaryKeyValues {
-				for j := range columns {
-					fmt.Printf("%s: %s\n  %s:\n    before: %s\n    after:  %s\n", primaryKeys[0], primaryKeyValues[i], columns[j], columnValuesBefore[i][j], columnValuesAfter[i][j])
-				}
-			}
+			fmt.Print(query)
 		} else {
-			if err := c.Update(table, "1 MONTH", primaryKeyRaw); err != nil {
+			if err := c.Update(table, parsedPast, primaryKeyRaw); err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println("updated successfully")
+			fmt.Println("Updated successfully!")
 		}
 	},
 }
