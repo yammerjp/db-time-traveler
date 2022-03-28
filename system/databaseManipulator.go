@@ -14,6 +14,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumns(table string) ([]string, e
 
 func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, error) {
 	query, err := selectPrimaryKeyColumnsQueryBuilder(table)
+	if err != nil {
+		return []string{}, err
+	}
 	primaryKeys, err := c.queryExecWithReturningSingleValue(query)
 	if err != nil {
 		return []string{}, err
@@ -32,6 +35,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, primary
 		return columns, [][]string{}, err
 	}
 	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks, primaryKeyValue)
+	if err != nil {
+		return columns, [][]string{}, err
+	}
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, err
@@ -50,6 +56,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 		return columns, [][]string{}, err
 	}
 	query, err := selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	if err != nil {
+		return columns, [][]string{}, err
+	}
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, err
