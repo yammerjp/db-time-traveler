@@ -1,10 +1,10 @@
-default-connections: local
+default_connection: local
 connections: 
   -
     name: local
     driver: mysql
-    host: localhost
-    user: root
+    hostname: localhost
+    username: root
     password: password
-    port: 3633
+    port: 3306
     database: sampleschema

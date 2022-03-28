@@ -1,30 +1,35 @@
 package system
 
 import (
-	"errors"
-	"fmt"
-	"io/ioutil"
-	"ioutil"
 	"os"
 
 	"gopkg.in/yaml.v2"
 )
 
 type ConnectionConfig struct {
-	Database DB
+	Name     string
+	Driver   string
+	Hostname string
+	Port     string
+	Username string
+	Password string
+	Database string
 }
 
-type RootConfig struct {
-	defaultConnection ConnectionConfig
+type Config struct {
+	DefaultConnection string `yaml:"default_connection"`
+	Connections       []ConnectionConfig
 }
 
-func loadConfigYaml(path string) (*ConnectionConfig, error) {
-	rootConfig := RootConfig{}
-	file, err := ioutil.ReadFile(path)
+func loadConfigYaml(path string) (*Config, error) {
+	var config Config
+	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	rootConfig, err = yaml.Unmarshal(file)
-	fmt.Printf("%s", rootConfig)
-	return nil, errors.New("not implemented")
+
+	if err = yaml.Unmarshal(buf, &config); err != nil {
+		return nil, err
+	}
+	return &config, nil
 }
