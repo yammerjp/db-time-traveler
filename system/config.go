@@ -156,3 +156,68 @@ func (c *Config) ToString() string {
 	}
 	return ret
 }
+
+func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig) (*ConnectionConfig, error) {
+	var ret ConnectionConfig
+	if prioritizedConnection.Name != "" {
+		ret.Name = prioritizedConnection.Name
+	} else {
+		ret.Name = connection.Name
+	}
+	if prioritizedConnection.Driver != "" {
+		ret.Driver = prioritizedConnection.Driver
+	} else {
+		ret.Driver = connection.Driver
+	}
+	if prioritizedConnection.Hostname != "" {
+		ret.Hostname = prioritizedConnection.Hostname
+	} else {
+		ret.Hostname = connection.Hostname
+	}
+	if prioritizedConnection.Port != "3306" {
+		ret.Port = prioritizedConnection.Port
+	} else {
+		ret.Port = connection.Port
+	}
+	if prioritizedConnection.Username != "" {
+		ret.Username = prioritizedConnection.Username
+	} else {
+		ret.Username = connection.Username
+	}
+	if prioritizedConnection.Password != "" {
+		ret.Password = prioritizedConnection.Password
+	} else {
+		ret.Password = connection.Password
+	}
+	if prioritizedConnection.Database != "" {
+		ret.Database = prioritizedConnection.Database
+	} else {
+		ret.Database = connection.Database
+	}
+	if prioritizedConnection.SSHKeyPath != "" {
+		ret.SSHKeyPath = prioritizedConnection.SSHKeyPath
+	} else {
+		ret.SSHKeyPath = connection.SSHKeyPath
+	}
+	if prioritizedConnection.SSHHost != "" {
+		ret.SSHHost = prioritizedConnection.SSHHost
+	} else {
+		ret.SSHHost = connection.SSHHost
+	}
+	if prioritizedConnection.SSHPort != "22" {
+		ret.SSHPort = prioritizedConnection.SSHPort
+	} else {
+		ret.SSHPort = connection.SSHPort
+	}
+	if prioritizedConnection.SSHUser != "" {
+		ret.SSHUser = prioritizedConnection.SSHUser
+	} else {
+		ret.SSHUser = connection.SSHUser
+	}
+	if prioritizedConnection.SSHPassphrase != "" {
+		ret.SSHPassphrase = prioritizedConnection.SSHPassphrase
+	} else {
+		ret.SSHPassphrase = connection.SSHPassphrase
+	}
+	return &ret, nil
+}

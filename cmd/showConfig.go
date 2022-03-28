@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 	"github.com/yammerjp/db-time-traveler/system"
 )
 
@@ -23,6 +24,9 @@ var showConfigCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(showConfigCmd)
-	showConfigCmd.Flags().StringVarP(&configPath, "config-path", "", "", "config path")
-	// showConftgCmd.Flags().StringVarP(&selectedConnection, "connection", "", "", "connection name")
+	initShowConfigFlg(showConfigCmd.Flags())
+}
+
+func initShowConfigFlg(f *flag.FlagSet) {
+	f.StringVarP(&configPath, "config-path", "", "", "config path")
 }
