@@ -6,7 +6,7 @@ You specify a table name, and db-time-traveler will rewind that record by the sp
 
 For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
 
-Example: db-time-traveler build and execute such as the following SQL from command line options
+Example: db-time-traveler build and execute such as the following SQL from table definitions and command line options.
 
 ```sql
 UPDATE
@@ -19,47 +19,39 @@ SET
 WHERE id IN 1
 ```
 
-## Requirement
-
-To develop a function that requires operations to be performed chronologically, we would like to pretend that the records were created in the past for the purpose of debugging in the development environment.
-
-I want to run an UPDATE statement to shift the values of DATE or DATETIME and TIMESTAMP type columns to the past by the time specified by the input, after narrowing down the records by specifying the table name.
-
-In addition to the above, it would be nice to have the ability to check the SQL before execution and to rewind the contents of a record after SQL execution as auxiliary functions.
-
-## Specification
-
-It is a CLI that can execute the following commands
-
-```bash
-db-time-traveler \
-  update
-  --past 1month \
-  --host 127.0.0.1 \
-  --port 3306 \
-  --user username \
-  --password password \
-  --schema main-db \
-  --table accounts \
-  --primary-keys-where-in 35 \
-  --ignore updated_at
-```
-
-The above command example represents the following actions
-
-- Connect to MySQL whose IP address is 127.0.0.1 and port number is 3306
-- Manipulate a database named main-db
-- The records that are filtered by the primary key "35"
-- Exclude the 'updated_at' column of the "contracts" table from being overwritten
-- Rewinds the date or time of all columns of the first specified table ("accounts") that are of type DATE or DATETIME or TIMESTAMP by one month.
-- Ignore "updated_at" from updating columns
-
 ## Setup
 
 ```bash
 $ go install github.com/yammerjp/db-time-traveler@latest  # download repository and build and install
 $ db-time-traveler config-init                            # generate config yaml
 $ vim ~/.db-time-traveler.yaml                            # edit config yaml
+```
+
+## Usage
+
+```
+db-time-traveler rewrites the time of records in a relational database together. You specify a table name, and db-time-traveler will rewind that record by the specified amount of time, as if it had been created in the past.
+
+For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
+
+Usage:
+  db-time-traveler [command]
+
+Available Commands:
+  completion     Generate the autocompletion script for the specified shell
+  help           Help about any command
+  init-config    Create sample config files to ~/.db-time-traveler.yaml
+  ping           Try to connect to a relational database
+  show-config    show configs
+  update         Update date related columns
+  update-dry-run Dry run to update date related columns
+  version        Show db-time-traveler version
+
+Flags:
+  -h, --help     help for db-time-traveler
+  -t, --toggle   Help message for toggle
+
+Use "db-time-traveler [command] --help" for more information about a command.
 ```
 
 ## Example
@@ -113,7 +105,9 @@ INSERT INTO accounts (id, name) VALUES (2, "Tanaka");
 
 ## Config
 
-example
+If you want to want to omit the configurations of connection information such as database name by command line argument, You should to place a config file to `~/.db-time-traveler.yaml` or `~/.db-time-traveler.yml` or `~/.config/db-time-traveler.yaml` or `~/.config/db-time-traveler.yml`
+
+db-time-traveler can load such as following config file...t
 
 ```
 default_connection: local
@@ -143,6 +137,41 @@ connections:
 
 - `default_connection` define default selected connection by name
 - write ssh configuration together, If you want to connect with proxy of SSH
+
+## Specification
+
+It is a CLI that can execute the following commands
+
+```bash
+db-time-traveler \
+  update
+  --past 1month \
+  --host 127.0.0.1 \
+  --port 3306 \
+  --user username \
+  --password password \
+  --schema main-db \
+  --table accounts \
+  --primary-keys-where-in 35 \
+  --ignore updated_at
+```
+
+The above command example represents the following actions
+
+- Connect to MySQL whose IP address is 127.0.0.1 and port number is 3306
+- Manipulate a database named main-db
+- The records that are filtered by the primary key "35"
+- Exclude the 'updated_at' column of the "contracts" table from being overwritten
+- Rewinds the date or time of all columns of the first specified table ("accounts") that are of type DATE or DATETIME or TIMESTAMP by one month.
+- Ignore "updated_at" from updating columns
+
+## Development Background
+
+To develop a function that requires operations to be performed chronologically, we would like to pretend that the records were created in the past for the purpose of debugging in the development environment.
+
+I want to run an UPDATE statement to shift the values of DATE or DATETIME and TIMESTAMP type columns to the past by the time specified by the input, after narrowing down the records by specifying the table name.
+
+In addition to the above, it would be nice to have the ability to check the SQL before execution and to rewind the contents of a record after SQL execution as auxiliary functions.
 
 ## Author
 
