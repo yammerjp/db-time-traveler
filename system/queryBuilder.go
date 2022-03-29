@@ -38,59 +38,59 @@ func (q *QueryBuilderSourcePartOfInterval) buildInterval() string {
 	return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.num, q.term)
 }
 
-func (q QueryBuilderSourceForColumnValues) buildWhereIn() string {
-	return " WHERE (" + strings.Join(q.primaryKeys, ", ") + ") IN ( " + q.stmtInWhereIn + " )"
-}
-
 func (q QueryBuilderSourceForSchemaInformation) buildFrom() string {
 	return " FROM " + q.targetTable
 }
 
-func (q QueryBuilderSourceToUpdate) buildStmtToUpdate() (string, error) {
-	query := "UPDATE " + q.targetTable + " SET"
+func (q QueryBuilderSourceForColumnValues) buildWhereIn() string {
+	return " WHERE (" + strings.Join(q.primaryKeys, ", ") + ") IN ( " + q.stmtInWhereIn + " )"
+}
 
-	intervalStr := q.buildInterval()
+func (q QueryBuilderSourceToUpdate) buildStmtToUpdate() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
+	query := "UPDATE " + q.targetTable + " SET "
 	for i, column := range q.columns {
-		if i == 0 {
-			query += " " + column + " = (" + column + intervalStr + ")"
-		} else {
-			query += ", " + column + " = (" + column + intervalStr + ")"
+		if i != 0 {
+			query += ", "
 		}
+		query += column + " = (" + column + q.buildInterval() + ")"
 	}
 	return query + q.buildWhereIn(), nil
 }
 
 func (q QueryBuilderSourceForColumnValues) buildStmtToSelect() (string, error) {
-	query := "SELECT"
-
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
-	for i, column := range q.columns {
-		if i == 0 {
-			query += " " + column
-		} else {
-			query += ", " + column
+	return "SELECT " + strings.Join(q.columns, ", ") + q.buildFrom() + q.buildWhereIn(), nil
+}
+
+func (q QueryBuilderSourceToUpdate) buildStmtToSelect() (string, error) {
+	if len(q.columns) == 0 {
+		return "", errors.New("must be specify any columns")
+	}
+	query := "SELECT "
+	for i, v := range q.columns {
+		if i != 0 {
+			query += ", "
 		}
+		query += v + q.buildInterval()
 	}
 	return query + q.buildFrom() + q.buildWhereIn(), nil
 }
 
-func (q QueryBuilderSourceToUpdate) buildStmtToSelect() (string, error) {
-	query := "SELECT"
-
-	intervalStr := q.buildInterval()
+func (q QueryBuilderSourceToUpdate) buildStmtToSelectBeforeAndAfter() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
-	for i, column := range q.columns {
+	query := "SELECT " + strings.Join(q.primaryKeys, ", ") + ", "
+	for i, v := range q.columns {
 		if i != 0 {
-			query += ","
+			query += ", "
 		}
-		query += " " + column + intervalStr
+		query += v + ", " + v + q.buildInterval()
 	}
 	return query + q.buildFrom() + q.buildWhereIn(), nil
 }
@@ -105,13 +105,4 @@ func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesDate
 
 func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesOfPrimaryKey() (string, error) {
 	return q.buildStmtToSelectColumnNames() + " AND COLUMN_KEY = \"PRI\"", nil
-}
-
-func (q QueryBuilderSourceToUpdate) buildStmtToSelectBeforeAndAfter() (string, error) {
-	query := "SELECT " + strings.Join(q.primaryKeys, ", ")
-	intervalStr := q.buildInterval()
-	for _, column := range q.columns {
-		query += ", " + column + ", " + column + intervalStr
-	}
-	return query + q.buildFrom() + q.buildWhereIn(), nil
 }
