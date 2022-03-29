@@ -32,7 +32,7 @@ func updateQueryBuilder(targetTable string, columns []string, past string, prima
 	query := "UPDATE " + targetTable + " SET"
 
 	if len(columns) == 0 {
-		return "", errors.New("Must be specify any columns")
+		return "", errors.New("must be specify any columns")
 	}
 	for i, column := range columns {
 		if i == 0 {
