@@ -25,28 +25,28 @@ type QueryBuilderSourceForColumnValues struct {
 
 type QueryBuilderSourceToUpdate struct {
 	QueryBuilderSourceForColumnValues
-  QueryBuilderSourcePartOfInterval
+	QueryBuilderSourcePartOfInterval
 }
 
 func (q *QueryBuilderSourcePartOfInterval) buildInterval() (string, error) {
-  var symbol string
-  if q.isPast {
-    symbol = "-"
-  } else {
-    symbol = "+"
-  }
+	var symbol string
+	if q.isPast {
+		symbol = "-"
+	} else {
+		symbol = "+"
+	}
 
-  return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.num, q.term)  , nil
+	return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.num, q.term), nil
 }
 
 func (q *QueryBuilderSourceToUpdate) buildToUpdate() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-  interval, err := q.buildInterval()
-  if err != nil {
-    return "", err
-  }
+	interval, err := q.buildInterval()
+	if err != nil {
+		return "", err
+	}
 	return updateQueryBuilder(q.targetTable, q.columns, interval, q.primaryKeys, q.whereInStmt)
 }
 
@@ -97,10 +97,10 @@ func (q *QueryBuilderSourceToUpdate) buildToSelect() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-  interval, err := q.buildInterval()
-  if err != nil {
-    return "", err
-  }
+	interval, err := q.buildInterval()
+	if err != nil {
+		return "", err
+	}
 	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, interval, q.primaryKeys, q.whereInStmt)
 }
 
@@ -153,10 +153,10 @@ func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
 }
 
 func (q *QueryBuilderSourceToUpdate) buildToSelectBeforeAndAfter() (string, error) {
-  interval, err := q.buildInterval()
-  if err != nil {
-    return "", err
-  }
+	interval, err := q.buildInterval()
+	if err != nil {
+		return "", err
+	}
 	return selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(q.targetTable, q.columns, interval, q.primaryKeys, q.whereInStmt)
 }
 
