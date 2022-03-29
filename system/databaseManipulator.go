@@ -8,7 +8,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumns(table string) ([]string, e
 	q := QueryBuilderSourceForSchemaInformation{
 		targetTable: table,
 	}
-	query, err := q.buildToSelectDateRelatedColumns()
+	query, err := q.buildStmtToSelectColumnNamesDateRelated()
 	if err != nil {
 		return []string{}, err
 	}
@@ -19,7 +19,7 @@ func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, er
 	q := QueryBuilderSourceForSchemaInformation{
 		targetTable: table,
 	}
-	query, err := q.buildToSelectPrimaryColumns()
+	query, err := q.buildStmtToSelectColumnNamesOfPrimaryKey()
 	if err != nil {
 		return []string{}, err
 	}
@@ -48,7 +48,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, stmtInW
 		primaryKeys:   pks,
 		stmtInWhereIn: stmtInWhereIn,
 	}
-	query, err := q.buildToSelectDateRelatedColumns()
+	query, err := q.buildStmtToSelectColumnNamesDateRelated()
 	if err != nil {
 		return columns, [][]string{}, err
 	}
@@ -80,7 +80,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
-	query, err := q.buildToSelectBeforeAndAfter()
+	query, err := q.buildStmtToSelectBeforeAndAfter()
 	if err != nil {
 		return columns, [][]string{}, err
 	}
@@ -109,7 +109,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		primaryKeys:   pks,
 		stmtInWhereIn: stmtInWhereIn,
 	}
-	query, err := q.buildToSelect()
+	query, err := q.buildStmtToSelect()
 	if err != nil {
 		return columns, [][]string{}, [][]string{}, err
 	}
@@ -122,7 +122,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		QueryBuilderSourceForColumnValues: q,
 		QueryBuilderSourcePartOfInterval:  interval,
 	}
-	query, err = q4u.buildToSelect()
+	query, err = q4u.buildStmtToSelect()
 	if err != nil {
 		return columns, columnValues, [][]string{}, err
 	}
@@ -154,7 +154,7 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval Q
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
-	query, err := q.buildToSelectBeforeAndAfter()
+	query, err := q.buildStmtToSelectBeforeAndAfter()
 	return query, columns, err
 }
 
@@ -239,7 +239,7 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval QueryBuil
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
-	return q.buildToUpdate()
+	return q.buildStmtToUpdate()
 }
 
 func (c *DatabaseConnection) Update(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) error {

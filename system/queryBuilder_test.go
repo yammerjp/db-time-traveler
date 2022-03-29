@@ -5,10 +5,24 @@ import (
 	"testing"
 )
 
-func TestUpdateQueryBuilder(t *testing.T) {
+func TestBuildStmtToUpdate(t *testing.T) {
 
 	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE (id) IN ( 3 )"
-	ret, err := updateQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, QueryBuilderSourcePartOfInterval{isPast: true, num: 1, term: "MONTH"}, []string{"id"}, "3")
+	ret, err := QueryBuilderSourceToUpdate{
+		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+				targetTable: "accounts",
+			},
+			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			primaryKeys:   []string{"id"},
+			stmtInWhereIn: "3",
+		},
+		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+			isPast: true,
+			num:    1,
+			term:   "MONTH",
+		},
+	}.buildStmtToUpdate()
 	if err != nil {
 		t.Error(err)
 	}
@@ -18,9 +32,16 @@ func TestUpdateQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestSelectTargettedColumnsQueryBuilder(t *testing.T) {
+func TestBuildStmtToSelect(t *testing.T) {
 	expected := "SELECT trial_end_date, registered_campaign_end_datetime, created_at, updated_at FROM accounts WHERE (id) IN ( 3 )"
-	ret, err := selectTargettedColumnsQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, []string{"id"}, "3")
+	ret, err := QueryBuilderSourceForColumnValues{
+		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+			targetTable: "accounts",
+		},
+		columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+		primaryKeys:   []string{"id"},
+		stmtInWhereIn: "3",
+	}.buildStmtToSelect()
 	if err != nil {
 		t.Error(err)
 	}
@@ -30,9 +51,23 @@ func TestSelectTargettedColumnsQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestSelectUpdatingColumnValuesQueryBuilder(t *testing.T) {
+func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
 	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
-	ret, err := selectUpdatingColumnValuesQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, QueryBuilderSourcePartOfInterval{isPast: true, num: 1, term: "MONTH"}, []string{"id"}, "3")
+	ret, err := QueryBuilderSourceToUpdate{
+		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+				targetTable: "accounts",
+			},
+			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			primaryKeys:   []string{"id"},
+			stmtInWhereIn: "3",
+		},
+		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+			isPast: true,
+			num:    1,
+			term:   "MONTH",
+		},
+	}.buildStmtToSelect()
 	if err != nil {
 		t.Error(err)
 	}
@@ -42,9 +77,11 @@ func TestSelectUpdatingColumnValuesQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestSelectDateRelatedColumnsQueryBuilder(t *testing.T) {
+func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")"
-	ret, err := selectDateRelatedColumnsQueryBuilder("accounts")
+	ret, err := QueryBuilderSourceForSchemaInformation{
+		targetTable: "accounts",
+	}.buildStmtToSelectColumnNamesDateRelated()
 	if err != nil {
 		t.Error(err)
 	}
@@ -54,9 +91,11 @@ func TestSelectDateRelatedColumnsQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestSelectPrimaryKeyColumnsQueryBuilder(t *testing.T) {
+func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\""
-	ret, err := selectPrimaryKeyColumnsQueryBuilder("accounts")
+	ret, err := QueryBuilderSourceForSchemaInformation{
+		targetTable: "accounts",
+	}.buildStmtToSelectColumnNamesOfPrimaryKey()
 	if err != nil {
 		t.Error(err)
 	}
@@ -66,9 +105,23 @@ func TestSelectPrimaryKeyColumnsQueryBuilder(t *testing.T) {
 	}
 }
 
-func TestSelectUpdatingColumnValuesBeforeAdnAfterQueryBUilder(t *testing.T) {
+func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
-	ret, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder("accounts", []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"}, QueryBuilderSourcePartOfInterval{isPast: true, num: 1, term: "MONTH"}, []string{"id"}, "3")
+	ret, err := QueryBuilderSourceToUpdate{
+		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+				targetTable: "accounts",
+			},
+			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			primaryKeys:   []string{"id"},
+			stmtInWhereIn: "3",
+		},
+		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+			isPast: true,
+			num:    1,
+			term:   "MONTH",
+		},
+	}.buildStmtToSelectBeforeAndAfter()
 	if err != nil {
 		t.Error(err)
 	}
