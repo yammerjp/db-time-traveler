@@ -30,3 +30,11 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+- tap:
+    owner: yammerjp
+    name: db-time-traveler
+    token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+  folder: Formula
+  homepage: https://github.com/yammerjp/db-time-traveler
+  description: "db-time-traveler rewrites the time of records in a relational database together."
