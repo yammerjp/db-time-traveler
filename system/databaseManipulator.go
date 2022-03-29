@@ -78,7 +78,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 			primaryKeys: pks,
 			whereInStmt: whereInStmt,
 		},
-    QueryBuilderSourcePartOfInterval: interval,
+		QueryBuilderSourcePartOfInterval: interval,
 	}
 	query, err := q.buildToSelectBeforeAndAfter()
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 
 	q4u := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: q,
-    QueryBuilderSourcePartOfInterval: interval,
+		QueryBuilderSourcePartOfInterval:  interval,
 	}
 	query, err = q4u.buildToSelect()
 	if err != nil {
@@ -152,7 +152,7 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval Q
 			primaryKeys: pks,
 			whereInStmt: whereInStmt,
 		},
-    QueryBuilderSourcePartOfInterval: interval,
+		QueryBuilderSourcePartOfInterval: interval,
 	}
 	query, err := q.buildToSelectBeforeAndAfter()
 	return query, columns, err
@@ -227,19 +227,19 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval QueryBuil
 	if err != nil {
 		return "", err
 	}
-  q := QueryBuilderSourceToUpdate {
-    QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues {
+	q := QueryBuilderSourceToUpdate{
+		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
 
-    QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation {
-      targetTable: table,
-    },
-      columns: columns,
-      primaryKeys: pks,
-      whereInStmt: whereInStmt,
-    },
-    QueryBuilderSourcePartOfInterval: interval,
-  }
-  return q.buildToUpdate()
+			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+				targetTable: table,
+			},
+			columns:     columns,
+			primaryKeys: pks,
+			whereInStmt: whereInStmt,
+		},
+		QueryBuilderSourcePartOfInterval: interval,
+	}
+	return q.buildToUpdate()
 }
 
 func (c *DatabaseConnection) Update(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) error {
