@@ -104,7 +104,7 @@ func (q *QueryBuilderSourceForSchemaInformation) buildToSelectDateRelatedColumns
 }
 
 func selectDateRelatedColumnsQueryBuilder(targetTable string) (string, error) {
-	query := "SELECT COLUMN_NAME"
+	query := "SELECT DISTINCT COLUMN_NAME"
 	query += " FROM INFORMATION_SCHEMA.COLUMNS"
 	query += " WHERE table_name = \"" + targetTable + "\""
 	query += " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")" // + DATA_TYPE = time
@@ -119,7 +119,7 @@ func (q *QueryBuilderSourceForSchemaInformation) buildToSelectPrimaryColumns() (
 }
 
 func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
-	query := "SELECT COLUMN_NAME"
+	query := "SELECT DISTINCT COLUMN_NAME"
 	query += " FROM INFORMATION_SCHEMA.COLUMNS"
 	query += " WHERE table_name = \"" + targetTable + "\""
 	query += " AND COLUMN_KEY = \"PRI\""

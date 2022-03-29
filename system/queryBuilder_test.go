@@ -43,7 +43,7 @@ func TestSelectUpdatingColumnValuesQueryBuilder(t *testing.T) {
 }
 
 func TestSelectDateRelatedColumnsQueryBuilder(t *testing.T) {
-	expected := "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")"
+	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")"
 	ret, err := selectDateRelatedColumnsQueryBuilder("accounts")
 	if err != nil {
 		t.Error(err)
@@ -55,7 +55,7 @@ func TestSelectDateRelatedColumnsQueryBuilder(t *testing.T) {
 }
 
 func TestSelectPrimaryKeyColumnsQueryBuilder(t *testing.T) {
-	expected := "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\""
+	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\""
 	ret, err := selectPrimaryKeyColumnsQueryBuilder("accounts")
 	if err != nil {
 		t.Error(err)
