@@ -17,7 +17,7 @@ type QueryBuilderSourceForColumnValues struct {
 }
 
 type QueryBuilderSourceToUpdate struct {
-	interval string
+	past string
 	QueryBuilderSourceForColumnValues
 }
 
@@ -25,10 +25,10 @@ func (q *QueryBuilderSourceToUpdate) buildToUpdate() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-	return updateQueryBuilder(q.targetTable, q.columns, q.interval, q.primaryKeys, q.whereInStmt)
+	return updateQueryBuilder(q.targetTable, q.columns, q.past, q.primaryKeys, q.whereInStmt)
 }
 
-func updateQueryBuilder(targetTable string, columns []string, interval string, primaryKeys []string, whereInStmt string) (string, error) {
+func updateQueryBuilder(targetTable string, columns []string, past string, primaryKeys []string, whereInStmt string) (string, error) {
 	query := "UPDATE " + targetTable + " SET"
 
 	if len(columns) == 0 {
@@ -36,9 +36,9 @@ func updateQueryBuilder(targetTable string, columns []string, interval string, p
 	}
 	for i, column := range columns {
 		if i == 0 {
-			query += " " + column + " = (" + column + " - INTERVAL " + interval + ")"
+			query += " " + column + " = (" + column + " - INTERVAL " + past + ")"
 		} else {
-			query += ", " + column + " = (" + column + " - INTERVAL " + interval + ")"
+			query += ", " + column + " = (" + column + " - INTERVAL " + past + ")"
 		}
 	}
 
@@ -75,10 +75,10 @@ func (q *QueryBuilderSourceToUpdate) buildToSelect() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, q.interval, q.primaryKeys, q.whereInStmt)
+	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, q.past, q.primaryKeys, q.whereInStmt)
 }
 
-func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string, interval string, primaryKeys []string, whereInStmt string) (string, error) {
+func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string, past string, primaryKeys []string, whereInStmt string) (string, error) {
 	query := "SELECT"
 
 	if len(columns) == 0 {
@@ -86,9 +86,9 @@ func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string
 	}
 	for i, column := range columns {
 		if i == 0 {
-			query += " " + column + " - INTERVAL " + interval
+			query += " " + column + " - INTERVAL " + past
 		} else {
-			query += ", " + column + " - INTERVAL " + interval
+			query += ", " + column + " - INTERVAL " + past
 		}
 	}
 	query += " FROM " + targetTable
@@ -126,10 +126,10 @@ func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
 	return query, nil
 }
 
-func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, interval string, primaryKeys []string, whereInStmt string) (string, error) {
+func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, past string, primaryKeys []string, whereInStmt string) (string, error) {
 	query := "SELECT " + strings.Join(primaryKeys, ", ")
 	for _, column := range columns {
-		query += ", " + column + ", " + column + " - INTERVAL " + interval
+		query += ", " + column + ", " + column + " - INTERVAL " + past
 	}
 	query += " FROM " + targetTable
 	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + whereInStmt + " )"

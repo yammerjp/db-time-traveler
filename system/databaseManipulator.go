@@ -45,7 +45,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, primary
 	return columns, columnValues, err
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table string, interval string, primaryKeyValue string) ([]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table string, past string, primaryKeyValue string) ([]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, err
@@ -55,7 +55,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 	if err != nil {
 		return columns, [][]string{}, err
 	}
-	query, err := selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	query, err := selectUpdatingColumnValuesQueryBuilder(table, columns, past, pks, primaryKeyValue)
 	if err != nil {
 		return columns, [][]string{}, err
 	}
@@ -66,7 +66,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 	return columns, columnValues, err
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(table string, interval string, primaryKeyValue string) ([]string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(table string, past string, primaryKeyValue string) ([]string, [][]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, [][]string{}, err
@@ -82,7 +82,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		return columns, [][]string{}, [][]string{}, err
 	}
 
-	query, err = selectUpdatingColumnValuesQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	query, err = selectUpdatingColumnValuesQueryBuilder(table, columns, past, pks, primaryKeyValue)
 	columnValuesToBeUpdated, err := c.queryExec(query)
 	if err != nil {
 		return columns, columnValues, [][]string{}, err
@@ -90,7 +90,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	return columns, columnValues, columnValuesToBeUpdated, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval string, primaryKeyValue string) (string, []string, error) {
+func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, past string, primaryKeyValue string) (string, []string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return "", []string{}, err
@@ -100,16 +100,16 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval s
 	if err != nil {
 		return "", columns, err
 	}
-	query, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	query, err := selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(table, columns, past, pks, primaryKeyValue)
 	return query, columns, err
 }
 
-func (c *DatabaseConnection) SelectToUpdate(table string, interval string, primaryKeyValue string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectToUpdate(table string, past string, primaryKeyValue string) ([]string, [][]string, []string, [][]string, [][]string, error) {
 	primaryKeys, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
 	}
-	query, columns, err := c.SelectToUpdateQueryBuilder(table, interval, primaryKeyValue)
+	query, columns, err := c.SelectToUpdateQueryBuilder(table, past, primaryKeyValue)
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
@@ -140,9 +140,9 @@ func (c *DatabaseConnection) SelectToUpdate(table string, interval string, prima
 	return primaryKeys, retPrimaryKeys, columns, retColumnValuesBefore, retColumnValuesAfter, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateToString(table string, interval string, primaryKeyValue string) (string, error) {
+func (c *DatabaseConnection) SelectToUpdateToString(table string, past string, primaryKeyValue string) (string, error) {
 	ret := ""
-	primaryKeys, primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, interval, primaryKeyValue)
+	primaryKeys, primaryKeyValues, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, past, primaryKeyValue)
 	if err != nil {
 		return "", nil
 	}
@@ -163,7 +163,7 @@ func (c *DatabaseConnection) SelectToUpdateToString(table string, interval strin
 	return ret, nil
 }
 
-func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval string, primaryKeyValue string) (string, error) {
+func (c *DatabaseConnection) UpdateQueryBuilder(table string, past string, primaryKeyValue string) (string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return "", err
@@ -173,11 +173,11 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval string, p
 	if err != nil {
 		return "", err
 	}
-	return updateQueryBuilder(table, columns, interval, pks, primaryKeyValue)
+	return updateQueryBuilder(table, columns, past, pks, primaryKeyValue)
 }
 
-func (c *DatabaseConnection) Update(table string, interval string, primaryKeyValue string) error {
-	query, err := c.UpdateQueryBuilder(table, interval, primaryKeyValue)
+func (c *DatabaseConnection) Update(table string, past string, primaryKeyValue string) error {
+	query, err := c.UpdateQueryBuilder(table, past, primaryKeyValue)
 	if err != nil {
 		return err
 	}
