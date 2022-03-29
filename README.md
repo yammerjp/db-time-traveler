@@ -6,6 +6,19 @@ You specify a table name, and db-time-traveler will rewind that record by the sp
 
 For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
 
+Example: db-time-traveler build and execute such as the following SQL from command line options
+
+```sql
+UPDATE
+  accounts
+SET
+  trial_end_date = (trial_end_date - INTERVAL 1 MONTH),
+  registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH),
+  created_at = (created_at - INTERVAL 1 MONTH),
+  updated_at = (updated_at - INTERVAL 1 MONTH)
+WHERE id IN 1
+```
+
 ## Requirement
 
 To develop a function that requires operations to be performed chronologically, we would like to pretend that the records were created in the past for the purpose of debugging in the development environment.
