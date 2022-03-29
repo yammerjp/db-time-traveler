@@ -126,6 +126,10 @@ func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
 	return query, nil
 }
 
+func (q *QueryBuilderSourceToUpdate) buildToSelectBeforeAndAfter() (string, error) {
+	return selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(q.targetTable, q.columns, q.past, q.primaryKeys, q.whereInStmt)
+}
+
 func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, past string, primaryKeys []string, whereInStmt string) (string, error) {
 	query := "SELECT " + strings.Join(primaryKeys, ", ")
 	for _, column := range columns {
