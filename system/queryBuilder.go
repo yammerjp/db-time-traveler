@@ -18,9 +18,9 @@ type QueryBuilderSourceForSchemaInformation struct {
 
 type QueryBuilderSourceForColumnValues struct {
 	QueryBuilderSourceForSchemaInformation
-	columns     []string
-	primaryKeys []string
-	whereInStmt string
+	columns       []string
+	primaryKeys   []string
+	stmtInWhereIn string
 }
 
 type QueryBuilderSourceToUpdate struct {
@@ -42,10 +42,10 @@ func (q *QueryBuilderSourceToUpdate) buildToUpdate() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-	return updateQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.whereInStmt)
+	return updateQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.stmtInWhereIn)
 }
 
-func updateQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, whereInStmt string) (string, error) {
+func updateQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, stmtInWhereIn string) (string, error) {
 	query := "UPDATE " + targetTable + " SET"
 
 	intervalStr := interval.buildInterval()
@@ -60,7 +60,7 @@ func updateQueryBuilder(targetTable string, columns []string, interval QueryBuil
 		}
 	}
 
-	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + whereInStmt + " )"
+	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + stmtInWhereIn + " )"
 	return query, nil
 }
 
@@ -68,10 +68,10 @@ func (q *QueryBuilderSourceForColumnValues) buildToSelect() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-	return selectTargettedColumnsQueryBuilder(q.targetTable, q.columns, q.primaryKeys, q.whereInStmt)
+	return selectTargettedColumnsQueryBuilder(q.targetTable, q.columns, q.primaryKeys, q.stmtInWhereIn)
 }
 
-func selectTargettedColumnsQueryBuilder(targetTable string, columns []string, primaryKeys []string, whereInStmt string) (string, error) {
+func selectTargettedColumnsQueryBuilder(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string) (string, error) {
 	query := "SELECT"
 
 	if len(columns) == 0 {
@@ -85,7 +85,7 @@ func selectTargettedColumnsQueryBuilder(targetTable string, columns []string, pr
 		}
 	}
 	query += " FROM " + targetTable
-	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + whereInStmt + " )"
+	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + stmtInWhereIn + " )"
 	return query, nil
 }
 
@@ -93,10 +93,10 @@ func (q *QueryBuilderSourceToUpdate) buildToSelect() (string, error) {
 	if q == nil {
 		return "", errors.New("QueryBuilderSource is nil on building query")
 	}
-	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.whereInStmt)
+	return selectUpdatingColumnValuesQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.stmtInWhereIn)
 }
 
-func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, whereInStmt string) (string, error) {
+func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, stmtInWhereIn string) (string, error) {
 	query := "SELECT"
 
 	intervalStr := interval.buildInterval()
@@ -111,7 +111,7 @@ func selectUpdatingColumnValuesQueryBuilder(targetTable string, columns []string
 		}
 	}
 	query += " FROM " + targetTable
-	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + whereInStmt + " )"
+	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + stmtInWhereIn + " )"
 	return query, nil
 }
 
@@ -146,16 +146,16 @@ func selectPrimaryKeyColumnsQueryBuilder(targetTable string) (string, error) {
 }
 
 func (q *QueryBuilderSourceToUpdate) buildToSelectBeforeAndAfter() (string, error) {
-	return selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.whereInStmt)
+	return selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(q.targetTable, q.columns, q.QueryBuilderSourcePartOfInterval, q.primaryKeys, q.stmtInWhereIn)
 }
 
-func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, whereInStmt string) (string, error) {
+func selectUpdatingColumnValuesBeforeAndAfterQueryBuilder(targetTable string, columns []string, interval QueryBuilderSourcePartOfInterval, primaryKeys []string, stmtInWhereIn string) (string, error) {
 	query := "SELECT " + strings.Join(primaryKeys, ", ")
 	intervalStr := interval.buildInterval()
 	for _, column := range columns {
 		query += ", " + column + ", " + column + intervalStr
 	}
 	query += " FROM " + targetTable
-	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + whereInStmt + " )"
+	query += " WHERE (" + strings.Join(primaryKeys, ", ") + ") IN ( " + stmtInWhereIn + " )"
 	return query, nil
 }

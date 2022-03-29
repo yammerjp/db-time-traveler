@@ -30,7 +30,7 @@ func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, er
 	return primaryKeys, nil
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, whereInStmt string) ([]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, stmtInWhereIn string) ([]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, err
@@ -44,9 +44,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, whereIn
 		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 			targetTable: table,
 		},
-		columns:     columns,
-		primaryKeys: pks,
-		whereInStmt: whereInStmt,
+		columns:       columns,
+		primaryKeys:   pks,
+		stmtInWhereIn: stmtInWhereIn,
 	}
 	query, err := q.buildToSelectDateRelatedColumns()
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, whereIn
 	return columns, columnValues, err
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) ([]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) ([]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, err
@@ -74,9 +74,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 				targetTable: table,
 			},
-			columns:     columns,
-			primaryKeys: pks,
-			whereInStmt: whereInStmt,
+			columns:       columns,
+			primaryKeys:   pks,
+			stmtInWhereIn: stmtInWhereIn,
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
@@ -91,7 +91,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 	return columns, columnValues, err
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) ([]string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) ([]string, [][]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, [][]string{}, err
@@ -105,9 +105,9 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 			targetTable: table,
 		},
-		columns:     columns,
-		primaryKeys: pks,
-		whereInStmt: whereInStmt,
+		columns:       columns,
+		primaryKeys:   pks,
+		stmtInWhereIn: stmtInWhereIn,
 	}
 	query, err := q.buildToSelect()
 	if err != nil {
@@ -133,7 +133,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	return columns, columnValues, columnValuesToBeUpdated, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) (string, []string, error) {
+func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) (string, []string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return "", []string{}, err
@@ -148,9 +148,9 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval Q
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 				targetTable: table,
 			},
-			columns:     columns,
-			primaryKeys: pks,
-			whereInStmt: whereInStmt,
+			columns:       columns,
+			primaryKeys:   pks,
+			stmtInWhereIn: stmtInWhereIn,
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
@@ -158,12 +158,12 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval Q
 	return query, columns, err
 }
 
-func (c *DatabaseConnection) SelectToUpdate(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectToUpdate(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) ([]string, [][]string, []string, [][]string, [][]string, error) {
 	primaryKeys, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
 	}
-	query, columns, err := c.SelectToUpdateQueryBuilder(table, interval, whereInStmt)
+	query, columns, err := c.SelectToUpdateQueryBuilder(table, interval, stmtInWhereIn)
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
@@ -194,13 +194,13 @@ func (c *DatabaseConnection) SelectToUpdate(table string, interval QueryBuilderS
 	return primaryKeys, retPrimaryKeys, columns, retColumnValuesBefore, retColumnValuesAfter, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateToString(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) (string, error) {
+func (c *DatabaseConnection) SelectToUpdateToString(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) (string, error) {
 	ret := ""
-	primaryKeys, whereInStmts, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, interval, whereInStmt)
+	primaryKeys, stmtInWhereIns, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, interval, stmtInWhereIn)
 	if err != nil {
 		return "", nil
 	}
-	for i, v := range whereInStmts {
+	for i, v := range stmtInWhereIns {
 		if i != 0 {
 			ret += "\n"
 		}
@@ -217,7 +217,7 @@ func (c *DatabaseConnection) SelectToUpdateToString(table string, interval Query
 	return ret, nil
 }
 
-func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) (string, error) {
+func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) (string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return "", err
@@ -233,17 +233,17 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval QueryBuil
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 				targetTable: table,
 			},
-			columns:     columns,
-			primaryKeys: pks,
-			whereInStmt: whereInStmt,
+			columns:       columns,
+			primaryKeys:   pks,
+			stmtInWhereIn: stmtInWhereIn,
 		},
 		QueryBuilderSourcePartOfInterval: interval,
 	}
 	return q.buildToUpdate()
 }
 
-func (c *DatabaseConnection) Update(table string, interval QueryBuilderSourcePartOfInterval, whereInStmt string) error {
-	query, err := c.UpdateQueryBuilder(table, interval, whereInStmt)
+func (c *DatabaseConnection) Update(table string, interval QueryBuilderSourcePartOfInterval, stmtInWhereIn string) error {
+	query, err := c.UpdateQueryBuilder(table, interval, stmtInWhereIn)
 	if err != nil {
 		return err
 	}
