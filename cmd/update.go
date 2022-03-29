@@ -63,5 +63,5 @@ func update(dryRun bool) {
 	if err := c.Update(table, *interval, primaryKeysWhereIn); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Updated successfully!")
+	fmt.Println("\nUpdated successfully!")
 }
