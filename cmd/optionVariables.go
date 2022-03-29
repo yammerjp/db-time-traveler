@@ -10,6 +10,7 @@ var printQuery bool
 var past string
 var future string
 var primaryKeysWhereIn string
+var ignoreColumns []string
 var sshHost string
 var sshPort int
 var sshUser string

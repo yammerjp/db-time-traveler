@@ -78,10 +78,10 @@ func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
 }
 
 func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
-	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")"
+	expected := "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"trial_end_date\", \"updated_at\")"
 	ret, err := QueryBuilderSourceForSchemaInformation{
 		targetTable: "accounts",
-	}.buildStmtToSelectColumnNamesDateRelated()
+	}.buildStmtToSelectColumnNamesDateRelated([]string{"trial_end_date", "updated_at"})
 	if err != nil {
 		t.Error(err)
 	}

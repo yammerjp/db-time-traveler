@@ -99,8 +99,8 @@ func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNames() s
 	return `SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + q.targetTable + `"`
 }
 
-func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesDateRelated() (string, error) {
-	return q.buildStmtToSelectColumnNames() + " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\")", nil // + DATA_TYPE = time
+func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (string, error) {
+	return q.buildStmtToSelectColumnNames() + " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"" + strings.Join(ignoreColumnNames, "\", \"") + "\")", nil // + DATA_TYPE = time
 }
 
 func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesOfPrimaryKey() (string, error) {

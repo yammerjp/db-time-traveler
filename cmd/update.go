@@ -30,6 +30,7 @@ func initUpdate(f *flag.FlagSet) {
 	f.StringVarP(&past, "past", "", "", "rewind date/time")
 	f.StringVarP(&future, "future", "", "", "fast forward date/time")
 	f.StringVarP(&primaryKeysWhereIn, "primary-keys-where-in", "", "", "Primary Key to specify WHERE IN")
+	f.StringSliceVarP(&ignoreColumns, "ignore", "", []string{}, "Ignore columns from updating")
 }
 func update(dryRun bool) {
 	c, err := connection()
@@ -43,14 +44,14 @@ func update(dryRun bool) {
 		log.Fatal(err)
 	}
 
-	beforeAndAfter, err := c.SelectToUpdateToString(table, *interval, primaryKeysWhereIn)
+	beforeAndAfter, err := c.SelectToUpdateToString(table, *interval, primaryKeysWhereIn, ignoreColumns)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(beforeAndAfter)
 
 	if printQuery {
-		query, err := c.UpdateQueryBuilder(table, *interval, primaryKeysWhereIn)
+		query, err := c.UpdateQueryBuilder(table, *interval, primaryKeysWhereIn, ignoreColumns)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -60,7 +61,7 @@ func update(dryRun bool) {
 		return
 	}
 
-	if err := c.Update(table, *interval, primaryKeysWhereIn); err != nil {
+	if err := c.Update(table, *interval, primaryKeysWhereIn, ignoreColumns); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("\nUpdated successfully!")
