@@ -8,6 +8,7 @@ var schema string
 var table string
 var printQuery bool
 var past string
+var future string
 var primaryKeysWhereIn string
 var sshHost string
 var sshPort int

@@ -28,6 +28,7 @@ func initUpdate(f *flag.FlagSet) {
 	f.StringVarP(&table, "table", "", "", "Table name")
 	f.BoolVarP(&printQuery, "print-query", "", false, "Print query")
 	f.StringVarP(&past, "past", "", "", "rewind date/time")
+	f.StringVarP(&future, "future", "", "", "fast forward date/time")
 	f.StringVarP(&primaryKeysWhereIn, "primary-keys-where-in", "", "", "Primary Key to specify WHERE IN")
 }
 func update(dryRun bool) {
@@ -37,19 +38,19 @@ func update(dryRun bool) {
 	}
 	defer c.Close()
 
-	parsedPast, err := system.ParsePast(past)
+	interval, err := system.ParseInterval(past, future)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	beforeAndAfter, err := c.SelectToUpdateToString(table, parsedPast, primaryKeysWhereIn)
+	beforeAndAfter, err := c.SelectToUpdateToString(table, *interval, primaryKeysWhereIn)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(beforeAndAfter)
 
 	if printQuery {
-		query, err := c.UpdateQueryBuilder(table, parsedPast, primaryKeysWhereIn)
+		query, err := c.UpdateQueryBuilder(table, *interval, primaryKeysWhereIn)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,9 +60,8 @@ func update(dryRun bool) {
 		return
 	}
 
-	if err := c.Update(table, parsedPast, primaryKeysWhereIn); err != nil {
+	if err := c.Update(table, *interval, primaryKeysWhereIn); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Updated successfully!")
-
 }
