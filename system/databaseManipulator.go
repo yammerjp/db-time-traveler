@@ -77,12 +77,18 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		return columns, [][]string{}, [][]string{}, err
 	}
 	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks, primaryKeyValue)
+	if err != nil {
+		return columns, [][]string{}, [][]string{}, err
+	}
 	columnValues, err := c.queryExec(query)
 	if err != nil {
 		return columns, [][]string{}, [][]string{}, err
 	}
 
 	query, err = selectUpdatingColumnValuesQueryBuilder(table, columns, past, pks, primaryKeyValue)
+	if err != nil {
+		return columns, columnValues, [][]string{}, err
+	}
 	columnValuesToBeUpdated, err := c.queryExec(query)
 	if err != nil {
 		return columns, columnValues, [][]string{}, err
