@@ -5,7 +5,10 @@ import (
 )
 
 func (c *DatabaseConnection) SelectDateRelatedColumns(table string) ([]string, error) {
-	query, err := selectDateRelatedColumnsQueryBuilder(table)
+	q := QueryBuilderSourceForSchemaInformation{
+		targetTable: table,
+	}
+	query, err := q.buildToSelectDateRelatedColumns()
 	if err != nil {
 		return []string{}, err
 	}
@@ -13,7 +16,10 @@ func (c *DatabaseConnection) SelectDateRelatedColumns(table string) ([]string, e
 }
 
 func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, error) {
-	query, err := selectPrimaryKeyColumnsQueryBuilder(table)
+	q := QueryBuilderSourceForSchemaInformation{
+		targetTable: table,
+	}
+	query, err := q.buildToSelectPrimaryColumns()
 	if err != nil {
 		return []string{}, err
 	}
@@ -24,7 +30,7 @@ func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, er
 	return primaryKeys, nil
 }
 
-func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, primaryKeyValue string) ([]string, [][]string, error) {
+func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, whereInStmt string) ([]string, [][]string, error) {
 	columns, err := c.SelectDateRelatedColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, err
@@ -34,7 +40,13 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, primary
 	if err != nil {
 		return columns, [][]string{}, err
 	}
-	query, err := selectTargettedColumnsQueryBuilder(table, columns, pks, primaryKeyValue)
+	q := QueryBuilderSourceForColumnValues{
+		targetTable: table,
+		columns:     columns,
+		primaryKeys: pks,
+		whereInStmt: whereInStmt,
+	}
+	query, err := q.buildToSelectDateRelatedColumns()
 	if err != nil {
 		return columns, [][]string{}, err
 	}

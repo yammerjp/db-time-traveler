@@ -10,15 +10,15 @@ type QueryBuilderSourceForSchemaInformation struct {
 }
 
 type QueryBuilderSourceForColumnValues struct {
+	QueryBuilderSourceForSchemaInformation
 	columns     []string
 	primaryKeys []string
 	whereInStmt string
-	QueryBuilderSourceForSchemaInformation
 }
 
 type QueryBuilderSourceToUpdate struct {
-	past string
 	QueryBuilderSourceForColumnValues
+	past string
 }
 
 func (q *QueryBuilderSourceToUpdate) buildToUpdate() (string, error) {
