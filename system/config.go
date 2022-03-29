@@ -158,7 +158,7 @@ func (c *Config) ToString() string {
 	return ret
 }
 
-func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig) (*ConnectionConfig, error) {
+func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig, overridePort bool, overrideSSHPort bool) (*ConnectionConfig, error) {
 	var ret ConnectionConfig
 	if prioritizedConnection.Name != "" {
 		ret.Name = prioritizedConnection.Name
@@ -175,7 +175,7 @@ func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionCo
 	} else {
 		ret.Hostname = connection.Hostname
 	}
-	if prioritizedConnection.Port != "3306" && false {
+	if overridePort {
 		ret.Port = prioritizedConnection.Port
 	} else {
 		ret.Port = connection.Port
@@ -205,7 +205,7 @@ func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionCo
 	} else {
 		ret.SSHHost = connection.SSHHost
 	}
-	if prioritizedConnection.SSHPort != "22" && false {
+	if overrideSSHPort {
 		ret.SSHPort = prioritizedConnection.SSHPort
 	} else {
 		ret.SSHPort = connection.SSHPort

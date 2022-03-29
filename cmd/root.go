@@ -11,7 +11,7 @@ var rootCmd = &cobra.Command{
 	Use:   "db-time-traveler",
 	Short: "Update datetimes and timestamps of columns on Relational Database",
 	Long: `
-db-time-traveler rewrites the time of records in a relational database together. You specify a table name, and db-time-traveler will rewind that record by the specified amount of time, as if it had been created in the past.
+db-time-traveler rewrites the date of records in a relational database together. You specify a table name, and db-time-traveler will rewind that record by the specified amount of date, as if it had been created in the past.
 
 For columns of type DATE or DATETIME or TIMESTAMP in the specified table, subtract the specified time from the existing value and overwrite the record with the result.
 `,

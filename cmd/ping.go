@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -81,7 +82,18 @@ func loadConnectionConfig() (*system.ConnectionConfig, error) {
 		return nil, err
 	}
 	fromCmdArgs := loadConnectionConfigFromCommandlineArguments()
-	return connection.Override(fromCmdArgs)
+
+	overridePort := false
+	overrideSSHPort := false
+	for _, v := range os.Args {
+		if v == "--port" {
+			overridePort = true
+		}
+		if v == "--ssh-port" {
+			overrideSSHPort = true
+		}
+	}
+	return connection.Override(fromCmdArgs, overridePort, overrideSSHPort)
 }
 
 func connect() (*system.DatabaseConnection, error) {
