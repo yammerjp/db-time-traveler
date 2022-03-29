@@ -23,6 +23,7 @@ WHERE id IN 1
 
 ```bash
 $ go install github.com/yammerjp/db-time-traveler@latest  # download repository and build and install
+# brew install yammerjp/tap/db-time-traveler              # you can also use brew install
 $ db-time-traveler config-init                            # generate config yaml
 $ vim ~/.db-time-traveler.yaml                            # edit config yaml
 ```
