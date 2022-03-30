@@ -33,7 +33,7 @@ changelog:
 brews:
 - tap:
     owner: yammerjp
-    name: db-time-traveler
+    name: homebrew-tap
     token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
   folder: Formula
   homepage: https://github.com/yammerjp/db-time-traveler
