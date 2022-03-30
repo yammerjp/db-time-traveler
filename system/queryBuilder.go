@@ -43,7 +43,14 @@ func (q QueryBuilderSourceForSchemaInformation) buildFrom() string {
 }
 
 func (q QueryBuilderSourceForColumnValues) buildWhereIn() string {
-	return " WHERE (" + strings.Join(q.primaryKeys, ", ") + ") IN ( " + q.stmtInWhereIn + " )"
+	pks := strings.Join(q.primaryKeys, ", ")
+
+	if !strings.HasPrefix(strings.ToUpper(strings.TrimSpace(q.stmtInWhereIn)), "SELECT") {
+		return fmt.Sprintf(" WHERE %s IN ( %s )", pks, q.stmtInWhereIn)
+	}
+
+	// MySQL does not allow specifying a table with the same name in WHERE IN SELECT during UPDATE, so an alias is applied to avoid this problem.
+	return fmt.Sprintf(" WHERE %s IN ( SELECT %s FROM ( %s ) as any )", pks, pks, q.stmtInWhereIn)
 }
 
 func (q QueryBuilderSourceToUpdate) buildStmtToUpdate() (string, error) {

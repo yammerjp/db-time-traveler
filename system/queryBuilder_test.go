@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestBuildStmtToUpdate(t *testing.T) {
+func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 
-	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE (id) IN ( 3 )"
+	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE id IN ( 3 )"
 	ret, err := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
@@ -32,8 +32,35 @@ func TestBuildStmtToUpdate(t *testing.T) {
 	}
 }
 
+func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
+
+	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE id IN ( SELECT id FROM ( SELECT id FROM accounts ) as any )"
+	ret, err := QueryBuilderSourceToUpdate{
+		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+				targetTable: "accounts",
+			},
+			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			primaryKeys:   []string{"id"},
+			stmtInWhereIn: "SELECT id FROM accounts",
+		},
+		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+			isPast: true,
+			num:    1,
+			term:   "MONTH",
+		},
+	}.buildStmtToUpdate()
+	if err != nil {
+		t.Error(err)
+	}
+	if ret != expected {
+		fmt.Printf("expected: %s\nreturned: %s\n", expected, ret)
+		t.Error("updateQueryBuilder must be return a expected statement")
+	}
+}
+
 func TestBuildStmtToSelect(t *testing.T) {
-	expected := "SELECT trial_end_date, registered_campaign_end_datetime, created_at, updated_at FROM accounts WHERE (id) IN ( 3 )"
+	expected := "SELECT trial_end_date, registered_campaign_end_datetime, created_at, updated_at FROM accounts WHERE id IN ( 3 )"
 	ret, err := QueryBuilderSourceForColumnValues{
 		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
 			targetTable: "accounts",
@@ -52,7 +79,7 @@ func TestBuildStmtToSelect(t *testing.T) {
 }
 
 func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
-	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
+	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE id IN ( 3 )"
 	ret, err := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
@@ -106,7 +133,7 @@ func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 }
 
 func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
-	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE (id) IN ( 3 )"
+	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE id IN ( 3 )"
 	ret, err := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
 			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
