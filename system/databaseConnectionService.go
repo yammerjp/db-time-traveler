@@ -163,15 +163,15 @@ func createDBConnection(conf *DB, sshc *ssh.Client) (*sql.DB, error) {
 	return sql.Open("mysql", dbConf.FormatDSN())
 }
 
-func (dapOnSsh *DatabaseAccessPointOnSSH) CreateDatabaseConnection() (*DatabaseConnection, error) {
-	sshConnection, err := createSSHConnection(dapOnSsh.SSH)
+func (p *DatabaseAccessPointOnSSH) CreateDatabaseConnection() (*DatabaseConnection, error) {
+	sc, err := createSSHConnection(p.SSH)
 	if err != nil {
 		return nil, err
 	}
 
-	dbConnection, err := createDBConnection(dapOnSsh.DB, sshConnection)
+	dbConnection, err := createDBConnection(p.DB, sc)
 	if err != nil {
 		return nil, err
 	}
-	return &DatabaseConnection{connection: dbConnection, sshConnection: sshConnection}, nil
+	return &DatabaseConnection{connection: dbConnection, sshConnection: sc}, nil
 }
