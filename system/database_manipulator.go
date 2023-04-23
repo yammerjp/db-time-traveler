@@ -40,7 +40,18 @@ func BuildQueryUpdate(c *database.Connection, table string, interval query.Inter
 	if err != nil {
 		return "", err
 	}
-	return query.BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
+
+	return query.UpdateSource{
+		SelectSource: query.SelectSource{
+			Table: query.Table{
+				TargetTable: table,
+			},
+			Columns:       columns,
+			PrimaryKeys:   pks,
+			StmtInWhereIn: stmtInWhereIn,
+		},
+		Interval: interval,
+	}.BuildStmtToUpdate()
 }
 
 func Update(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) error {
@@ -53,7 +64,7 @@ func Update(c *database.Connection, table string, interval query.Interval, stmtI
 }
 
 func selectDateRelatedColumns(c *database.Connection, table string, ignoreColumns []string) ([]string, error) {
-	query, err := query.BuildStmtToSelectColumnNamesDateRelated(table, ignoreColumns)
+	query, err := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesDateRelated(ignoreColumns)
 	if err != nil {
 		return []string{}, err
 	}
@@ -62,7 +73,7 @@ func selectDateRelatedColumns(c *database.Connection, table string, ignoreColumn
 }
 
 func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, error) {
-	query, err := query.BuildStmtToSelectColumnNamesOfPrimaryKey(table)
+	query, err := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesOfPrimaryKey()
 	if err != nil {
 		return []string{}, err
 	}
@@ -74,7 +85,7 @@ func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, er
 	return primaryKeys, nil
 }
 
-func buildStmtToSelectBeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (query.SelectStatement, []string, error) {
+func BuildStmtToSelectBeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (query.SelectStatement, []string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", []string{}, err
@@ -84,12 +95,23 @@ func buildStmtToSelectBeforeAndAfter(c *database.Connection, table string, inter
 	if err != nil {
 		return "", columns, err
 	}
-	query, err := query.BuildStmtToSelectBeforeAndAfter(table, columns, pks, stmtInWhereIn, interval)
-	return query, columns, err
+	stmt, err := query.UpdateSource{
+		SelectSource: query.SelectSource{
+			Table: query.Table{
+				TargetTable: table,
+			},
+			Columns:       columns,
+			PrimaryKeys:   pks,
+			StmtInWhereIn: stmtInWhereIn,
+		},
+		Interval: interval,
+	}.BuildStmtToSelectBeforeAndAfter()
+
+	return stmt, columns, err
 }
 
 func selectBeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([][]string, []string, error) {
-	query, columns, err := buildStmtToSelectBeforeAndAfter(c, table, interval, stmtInWhereIn, ignoreColumns)
+	query, columns, err := BuildStmtToSelectBeforeAndAfter(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return [][]string{}, columns, err
 	}

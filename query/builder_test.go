@@ -22,7 +22,7 @@ func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 			Num:    1,
 			Term:   "MONTH",
 		},
-	}.buildStmtToUpdate()
+	}.BuildStmtToUpdate()
 	if err != nil {
 		t.Error(err)
 	}
@@ -48,7 +48,7 @@ func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 			Num:    1,
 			Term:   "MONTH",
 		},
-	}.buildStmtToSelectBeforeAndAfter()
+	}.BuildStmtToSelectBeforeAndAfter()
 	if err != nil {
 		t.Error(err)
 	}
@@ -75,7 +75,7 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 			Num:    1,
 			Term:   "MONTH",
 		},
-	}.buildStmtToUpdate()
+	}.BuildStmtToUpdate()
 	if err != nil {
 		t.Error(err)
 	}
@@ -89,7 +89,7 @@ func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"trial_end_date\", \"updated_at\")")
 	ret, err := Table{
 		TargetTable: "accounts",
-	}.buildStmtToSelectColumnNamesDateRelated([]string{"trial_end_date", "updated_at"})
+	}.BuildStmtToSelectColumnNamesDateRelated([]string{"trial_end_date", "updated_at"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -103,7 +103,7 @@ func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\"")
 	ret, err := Table{
 		TargetTable: "accounts",
-	}.buildStmtToSelectColumnNamesOfPrimaryKey()
+	}.BuildStmtToSelectColumnNamesOfPrimaryKey()
 	if err != nil {
 		t.Error(err)
 	}

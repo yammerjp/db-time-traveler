@@ -57,7 +57,7 @@ func (s SelectSource) buildWhereIn() string {
 	return fmt.Sprintf(" WHERE %s IN ( SELECT %s FROM ( %s ) as any )", pks, pks, s.StmtInWhereIn)
 }
 
-func (u UpdateSource) buildStmtToUpdate() (UpdateStatement, error) {
+func (u UpdateSource) BuildStmtToUpdate() (UpdateStatement, error) {
 	if len(u.Columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
@@ -71,7 +71,7 @@ func (u UpdateSource) buildStmtToUpdate() (UpdateStatement, error) {
 	return UpdateStatement(query + u.buildWhereIn()), nil
 }
 
-func (q UpdateSource) buildStmtToSelectBeforeAndAfter() (SelectStatement, error) {
+func (q UpdateSource) BuildStmtToSelectBeforeAndAfter() (SelectStatement, error) {
 	if len(q.Columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
@@ -89,10 +89,10 @@ func (t Table) buildStmtToSelectColumnNames() SelectStatement {
 	return SelectStatement(`SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + t.TargetTable + `"`)
 }
 
-func (t Table) buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (SelectStatement, error) {
+func (t Table) BuildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (SelectStatement, error) {
 	return SelectStatement(string(t.buildStmtToSelectColumnNames()) + " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"" + strings.Join(ignoreColumnNames, "\", \"") + "\")"), nil // + DATA_TYPE = time
 }
 
-func (t Table) buildStmtToSelectColumnNamesOfPrimaryKey() (SelectStatement, error) {
+func (t Table) BuildStmtToSelectColumnNamesOfPrimaryKey() (SelectStatement, error) {
 	return t.buildStmtToSelectColumnNames() + " AND COLUMN_KEY = \"PRI\"", nil
 }
