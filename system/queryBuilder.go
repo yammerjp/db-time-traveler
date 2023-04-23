@@ -74,20 +74,6 @@ func (q SelectSource) buildStmtToSelect() (string, error) {
 	return "SELECT " + strings.Join(q.columns, ", ") + q.buildFrom() + q.buildWhereIn(), nil
 }
 
-func (q UpdateSource) buildStmtToSelect() (string, error) {
-	if len(q.columns) == 0 {
-		return "", errors.New("must be specify any columns")
-	}
-	query := "SELECT "
-	for i, v := range q.columns {
-		if i != 0 {
-			query += ", "
-		}
-		query += v + q.buildInterval()
-	}
-	return query + q.buildFrom() + q.buildWhereIn(), nil
-}
-
 func (q UpdateSource) buildStmtToSelectBeforeAndAfter() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
