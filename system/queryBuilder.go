@@ -7,9 +7,9 @@ import (
 )
 
 type QueryBuilderSourcePartOfInterval struct {
-	isPast bool
-	num    int
-	term   string
+	IsPast bool
+	Num    int
+	Term   string
 }
 
 type QueryBuilderSourceForSchemaInformation struct {
@@ -30,12 +30,12 @@ type QueryBuilderSourceToUpdate struct {
 
 func (q *QueryBuilderSourcePartOfInterval) buildInterval() string {
 	var symbol string
-	if q.isPast {
+	if q.IsPast {
 		symbol = "-"
 	} else {
 		symbol = "+"
 	}
-	return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.num, q.term)
+	return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.Num, q.Term)
 }
 
 func (q QueryBuilderSourceForSchemaInformation) buildFrom() string {

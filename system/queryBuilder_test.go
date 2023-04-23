@@ -18,9 +18,9 @@ func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 			stmtInWhereIn: "3",
 		},
 		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
-			isPast: true,
-			num:    1,
-			term:   "MONTH",
+			IsPast: true,
+			Num:    1,
+			Term:   "MONTH",
 		},
 	}.buildStmtToUpdate()
 	if err != nil {
@@ -45,9 +45,9 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 			stmtInWhereIn: "SELECT id FROM accounts",
 		},
 		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
-			isPast: true,
-			num:    1,
-			term:   "MONTH",
+			IsPast: true,
+			Num:    1,
+			Term:   "MONTH",
 		},
 	}.buildStmtToUpdate()
 	if err != nil {
@@ -90,9 +90,9 @@ func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
 			stmtInWhereIn: "3",
 		},
 		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
-			isPast: true,
-			num:    1,
-			term:   "MONTH",
+			IsPast: true,
+			Num:    1,
+			Term:   "MONTH",
 		},
 	}.buildStmtToSelect()
 	if err != nil {
@@ -144,9 +144,9 @@ func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 			stmtInWhereIn: "3",
 		},
 		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
-			isPast: true,
-			num:    1,
-			term:   "MONTH",
+			IsPast: true,
+			Num:    1,
+			Term:   "MONTH",
 		},
 	}.buildStmtToSelectBeforeAndAfter()
 	if err != nil {

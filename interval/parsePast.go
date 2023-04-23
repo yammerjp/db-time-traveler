@@ -1,10 +1,12 @@
-package system
+package interval
 
 import (
 	"errors"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/yammerjp/db-time-traveler/system"
 )
 
 func ParsePast(str string) (string, error) {
@@ -24,14 +26,14 @@ func ParsePast(str string) (string, error) {
 	return strconv.Itoa(num) + " " + term, nil
 }
 
-func ParseInterval(past string, future string) (*QueryBuilderSourcePartOfInterval, error) {
+func ParseInterval(past string, future string) (*system.QueryBuilderSourcePartOfInterval, error) {
 	pastNum, pastTerm, pastErr := devideNumAndTerm(past)
 	futureNum, futureTerm, futureErr := devideNumAndTerm(future)
 	if pastErr == nil && futureErr != nil {
-		return &QueryBuilderSourcePartOfInterval{isPast: true, num: pastNum, term: pastTerm}, nil
+		return &system.QueryBuilderSourcePartOfInterval{IsPast: true, Num: pastNum, Term: pastTerm}, nil
 	}
 	if pastErr != nil && futureErr == nil {
-		return &QueryBuilderSourcePartOfInterval{isPast: false, num: futureNum, term: futureTerm}, nil
+		return &system.QueryBuilderSourcePartOfInterval{IsPast: false, Num: futureNum, Term: futureTerm}, nil
 	}
 	return nil, errors.New("failed to parse interval (past or future)")
 }

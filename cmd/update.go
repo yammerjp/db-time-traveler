@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"github.com/yammerjp/db-time-traveler/system"
+	"github.com/yammerjp/db-time-traveler/interval"
 )
 
 var updateCmd = &cobra.Command{
@@ -39,7 +39,7 @@ func update(dryRun bool) {
 	}
 	defer c.Close()
 
-	interval, err := system.ParseInterval(past, future)
+	interval, err := interval.ParseInterval(past, future)
 	if err != nil {
 		log.Fatal(err)
 	}
