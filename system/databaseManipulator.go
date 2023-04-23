@@ -3,10 +3,11 @@ package system
 import (
 	"fmt"
 
+	"github.com/yammerjp/db-time-traveler/database"
 	"github.com/yammerjp/db-time-traveler/query"
 )
 
-func SelectToUpdateToString(c *DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func SelectToUpdateToString(c *database.DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	ret := ""
 	primaryKeys, stmtInWhereIns, columns, columnValuesBefore, columnValuesAfter, err := selectToUpdate(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
@@ -29,7 +30,7 @@ func SelectToUpdateToString(c *DatabaseConnection, table string, interval query.
 	return ret, nil
 }
 
-func UpdateQueryBuilder(c *DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func UpdateQueryBuilder(c *database.DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", err
@@ -42,35 +43,35 @@ func UpdateQueryBuilder(c *DatabaseConnection, table string, interval query.Inte
 	return query.BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
 }
 
-func Update(c *DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) error {
+func Update(c *database.DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) error {
 	query, err := UpdateQueryBuilder(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return err
 	}
-	return c.queryExecWithNothingReturningValues(query)
+	return c.QueryExecWithNothingReturningValues(query)
 }
 
-func selectDateRelatedColumns(c *DatabaseConnection, table string, ignoreColumns []string) ([]string, error) {
+func selectDateRelatedColumns(c *database.DatabaseConnection, table string, ignoreColumns []string) ([]string, error) {
 	query, err := query.BuildStmtToSelectColumnNamesDateRelated(table, ignoreColumns)
 	if err != nil {
 		return []string{}, err
 	}
-	return c.queryExecWithReturningSingleValue(query)
+	return c.QueryExecWithReturningSingleValue(query)
 }
 
-func selectPrimaryKeyColumns(c *DatabaseConnection, table string) ([]string, error) {
+func selectPrimaryKeyColumns(c *database.DatabaseConnection, table string) ([]string, error) {
 	query, err := query.BuildStmtToSelectColumnNamesOfPrimaryKey(table)
 	if err != nil {
 		return []string{}, err
 	}
-	primaryKeys, err := c.queryExecWithReturningSingleValue(query)
+	primaryKeys, err := c.QueryExecWithReturningSingleValue(query)
 	if err != nil {
 		return []string{}, err
 	}
 	return primaryKeys, nil
 }
 
-func selectToUpdateQueryBuilder(c *DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
+func selectToUpdateQueryBuilder(c *database.DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", []string{}, err
@@ -84,7 +85,7 @@ func selectToUpdateQueryBuilder(c *DatabaseConnection, table string, interval qu
 	return query, columns, err
 }
 
-func selectToUpdate(c *DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+func selectToUpdate(c *database.DatabaseConnection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
 	primaryKeys, err := selectPrimaryKeyColumns(c, table)
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
@@ -93,7 +94,7 @@ func selectToUpdate(c *DatabaseConnection, table string, interval query.Interval
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
-	selectStmtReturnColumnValues, err := c.queryExec(query)
+	selectStmtReturnColumnValues, err := c.QueryExec(query)
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"github.com/yammerjp/db-time-traveler/system"
+	"github.com/yammerjp/db-time-traveler/configuration"
 )
 
 var showConfigCmd = &cobra.Command{
@@ -14,7 +14,7 @@ var showConfigCmd = &cobra.Command{
 	Short: "show configs",
 	Long:  `show the inner of config yaml such as ~/.db-time-traveler.yml`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config, err := system.LoadConfig(configPath)
+		config, err := configuration.LoadConfig(configPath)
 		if err != nil {
 			log.Fatal(err)
 		}

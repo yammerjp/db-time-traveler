@@ -1,4 +1,4 @@
-package system
+package configuration
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/yammerjp/db-time-traveler/database"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,8 +78,8 @@ func (c *Config) FindConnection(targetConnectionName string) (*ConnectionConfig,
 	return nil, errors.New("Default Connection is not found")
 }
 
-func (conn *ConnectionConfig) CreateDatabaseConnection() (*DatabaseConnection, error) {
-	var dap DatabaseAccessPointHub
+func (conn *ConnectionConfig) CreateDatabaseConnection() (*database.DatabaseConnection, error) {
+	var dap database.DatabaseAccessPointHub
 	var err error
 	if conn.SSHHost != "" {
 		dap, err = conn.toDapOnSSH()
@@ -91,12 +92,12 @@ func (conn *ConnectionConfig) CreateDatabaseConnection() (*DatabaseConnection, e
 	return dap.CreateDatabaseConnection()
 }
 
-func (conn *ConnectionConfig) toDapWithoutSSH() (*DatabaseAccessPoint, error) {
+func (conn *ConnectionConfig) toDapWithoutSSH() (*database.DatabaseAccessPoint, error) {
 	port, err := strconv.Atoi(conn.Port)
 	if err != nil {
 		return nil, err
 	}
-	return &DatabaseAccessPoint{
+	return &database.DatabaseAccessPoint{
 		Username: conn.Username,
 		Password: conn.Password,
 		Host:     conn.Hostname,
@@ -105,16 +106,16 @@ func (conn *ConnectionConfig) toDapWithoutSSH() (*DatabaseAccessPoint, error) {
 	}, nil
 }
 
-func (conn *ConnectionConfig) toDapOnSSH() (*DatabaseAccessPointOnSSH, error) {
-	return &DatabaseAccessPointOnSSH{
-		DB: &DB{
+func (conn *ConnectionConfig) toDapOnSSH() (*database.DatabaseAccessPointOnSSH, error) {
+	return &database.DatabaseAccessPointOnSSH{
+		DB: &database.DB{
 			Host:     conn.Hostname,
 			Port:     conn.Port,
 			User:     conn.Username,
 			Password: conn.Password,
 			DBName:   conn.Database,
 		},
-		SSH: &SSH{
+		SSH: &database.SSH{
 			Key:        conn.SSHKeyPath,
 			Host:       conn.SSHHost,
 			User:       conn.SSHUser,

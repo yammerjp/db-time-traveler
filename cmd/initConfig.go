@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/yammerjp/db-time-traveler/system"
+	"github.com/yammerjp/db-time-traveler/configuration"
 )
 
 var initConfigCmd = &cobra.Command{
@@ -12,7 +12,7 @@ var initConfigCmd = &cobra.Command{
 	Short: "Create sample config files to ~/.db-time-traveler.yaml",
 	Long:  "Create sample config files to ~/.db-time-traveler.yaml",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := system.CreateConfigFile(configPath)
+		err := configuration.CreateConfigFile(configPath)
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -7,7 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"github.com/yammerjp/db-time-traveler/system"
+	"github.com/yammerjp/db-time-traveler/configuration"
+	"github.com/yammerjp/db-time-traveler/database"
 )
 
 var pingCmd = &cobra.Command{
@@ -33,7 +34,7 @@ func ping() {
 	}
 }
 
-func connection() (*system.DatabaseConnection, error) {
+func connection() (*database.DatabaseConnection, error) {
 	return connect()
 }
 
@@ -57,8 +58,8 @@ func initConnection(f *flag.FlagSet) {
 	f.StringVarP(&selectedConnection, "connection", "", "", "connection name")
 }
 
-func loadConnectionConfigFromCommandlineArguments() *system.ConnectionConfig {
-	return &system.ConnectionConfig{
+func loadConnectionConfigFromCommandlineArguments() *configuration.ConnectionConfig {
+	return &configuration.ConnectionConfig{
 		Hostname:      host,
 		Port:          fmt.Sprintf("%d", port),
 		Username:      username,
@@ -72,8 +73,8 @@ func loadConnectionConfigFromCommandlineArguments() *system.ConnectionConfig {
 	}
 }
 
-func loadConnectionConfig() (*system.ConnectionConfig, error) {
-	config, err := system.LoadConfig(configPath)
+func loadConnectionConfig() (*configuration.ConnectionConfig, error) {
+	config, err := configuration.LoadConfig(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +97,7 @@ func loadConnectionConfig() (*system.ConnectionConfig, error) {
 	return connection.Override(fromCmdArgs, overridePort, overrideSSHPort)
 }
 
-func connect() (*system.DatabaseConnection, error) {
+func connect() (*database.DatabaseConnection, error) {
 	connection, err := loadConnectionConfig()
 	if err != nil {
 		return nil, err

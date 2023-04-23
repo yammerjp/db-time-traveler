@@ -1,7 +1,8 @@
-package system
+package database
 
 import (
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -9,13 +10,13 @@ func (c *DatabaseConnection) Ping() error {
 	return c.connection.Ping()
 }
 
-func (c *DatabaseConnection) queryExecWithNothingReturningValues(query string) error {
+func (c *DatabaseConnection) QueryExecWithNothingReturningValues(query string) error {
 	_, err := c.connection.Exec(query)
 	return err
 }
 
-func (c *DatabaseConnection) queryExecWithReturningSingleValue(query string) ([]string, error) {
-	rows, err := c.queryExec(query)
+func (c *DatabaseConnection) QueryExecWithReturningSingleValue(query string) ([]string, error) {
+	rows, err := c.QueryExec(query)
 	if err != nil {
 		return []string{}, err
 	}
@@ -26,7 +27,7 @@ func (c *DatabaseConnection) queryExecWithReturningSingleValue(query string) ([]
 	return columns, nil
 }
 
-func (c *DatabaseConnection) queryExec(query string) ([][]string, error) {
+func (c *DatabaseConnection) QueryExec(query string) ([][]string, error) {
 	rows, err := c.connection.Query(query)
 	if err != nil {
 		return nil, err
