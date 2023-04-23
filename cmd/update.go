@@ -33,8 +33,9 @@ func initUpdate(f *flag.FlagSet) {
 	f.StringVarP(&primaryKeysWhereIn, "primary-keys-where-in", "", "", "Primary Key to specify WHERE IN")
 	f.StringSliceVarP(&ignoreColumns, "ignore", "", []string{}, "Ignore columns from updating")
 }
+
 func update(dryRun bool) {
-	c, err := connection()
+	c, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}

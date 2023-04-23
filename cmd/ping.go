@@ -21,7 +21,7 @@ var pingCmd = &cobra.Command{
 }
 
 func ping() {
-	c, err := connection()
+	c, err := connect()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,10 +32,6 @@ func ping() {
 	} else {
 		log.Println("Ping Success!")
 	}
-}
-
-func connection() (*database.Connection, error) {
-	return connect()
 }
 
 func init() {

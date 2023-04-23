@@ -27,6 +27,6 @@ func TestLoadConfigYaml(t *testing.T) {
 	}
 	if !reflect.DeepEqual(*ret, expected) {
 		fmt.Printf("expected: %s\nreturned: %s\n", expected, ret)
-		t.Error("loadConnectionConfig must be return a expected statement")
+		t.Error("loadConfigFromYaml must be return a expected statement")
 	}
 }
