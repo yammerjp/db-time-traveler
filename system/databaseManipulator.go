@@ -2,10 +2,12 @@ package system
 
 import (
 	"fmt"
+
+	"github.com/yammerjp/db-time-traveler/query"
 )
 
 func (c *DatabaseConnection) SelectDateRelatedColumns(table string, ignoreColumns []string) ([]string, error) {
-	query, err := BuildStmtToSelectColumnNamesDateRelated(table, ignoreColumns)
+	query, err := query.BuildStmtToSelectColumnNamesDateRelated(table, ignoreColumns)
 	if err != nil {
 		return []string{}, err
 	}
@@ -13,7 +15,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumns(table string, ignoreColumn
 }
 
 func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, error) {
-	query, err := BuildStmtToSelectColumnNamesOfPrimaryKey(table)
+	query, err := query.BuildStmtToSelectColumnNamesOfPrimaryKey(table)
 	if err != nil {
 		return []string{}, err
 	}
@@ -24,7 +26,7 @@ func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, er
 	return primaryKeys, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
+func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
 	columns, err := c.SelectDateRelatedColumns(table, ignoreColumns)
 	if err != nil {
 		return "", []string{}, err
@@ -34,11 +36,11 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval I
 	if err != nil {
 		return "", columns, err
 	}
-	query, err := BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
+	query, err := query.BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
 	return query, columns, err
 }
 
-func (c *DatabaseConnection) SelectToUpdate(table string, interval Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+func (c *DatabaseConnection) SelectToUpdate(table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
 	primaryKeys, err := c.SelectPrimaryKeyColumns(table)
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
@@ -74,7 +76,7 @@ func (c *DatabaseConnection) SelectToUpdate(table string, interval Interval, stm
 	return primaryKeys, retPrimaryKeys, columns, retColumnValuesBefore, retColumnValuesAfter, nil
 }
 
-func (c *DatabaseConnection) SelectToUpdateToString(table string, interval Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func (c *DatabaseConnection) SelectToUpdateToString(table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	ret := ""
 	primaryKeys, stmtInWhereIns, columns, columnValuesBefore, columnValuesAfter, err := c.SelectToUpdate(table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
@@ -97,7 +99,7 @@ func (c *DatabaseConnection) SelectToUpdateToString(table string, interval Inter
 	return ret, nil
 }
 
-func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	columns, err := c.SelectDateRelatedColumns(table, ignoreColumns)
 	if err != nil {
 		return "", err
@@ -107,10 +109,10 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval Interval,
 	if err != nil {
 		return "", err
 	}
-	return BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
+	return query.BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
 }
 
-func (c *DatabaseConnection) Update(table string, interval Interval, stmtInWhereIn string, ignoreColumns []string) error {
+func (c *DatabaseConnection) Update(table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) error {
 	query, err := c.UpdateQueryBuilder(table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return err

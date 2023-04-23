@@ -1,4 +1,4 @@
-package system
+package query
 
 func BuildStmtToUpdate(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string, interval Interval) (string, error) {
 	return UpdateSource{

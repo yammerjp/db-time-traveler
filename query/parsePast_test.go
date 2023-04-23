@@ -1,10 +1,8 @@
-package interval
+package query
 
 import (
 	"fmt"
 	"testing"
-
-	"github.com/yammerjp/db-time-traveler/system"
 )
 
 func TestParsePast(t *testing.T) {
@@ -20,7 +18,7 @@ func TestParsePast(t *testing.T) {
 }
 
 func TestParseInterval(t *testing.T) {
-	expected := system.Interval{
+	expected := Interval{
 		IsPast: false,
 		Num:    3,
 		Term:   "MONTH",

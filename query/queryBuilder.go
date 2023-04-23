@@ -1,4 +1,4 @@
-package system
+package query
 
 import (
 	"errors"
