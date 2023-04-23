@@ -16,7 +16,7 @@ type Table struct {
 	targetTable string
 }
 
-type QueryBuilderSourceForColumnValues struct {
+type SelectSource struct {
 	Table
 	columns       []string
 	primaryKeys   []string
@@ -24,7 +24,7 @@ type QueryBuilderSourceForColumnValues struct {
 }
 
 type QueryBuilderSourceToUpdate struct {
-	QueryBuilderSourceForColumnValues
+	SelectSource
 	Interval
 }
 
@@ -42,7 +42,7 @@ func (q Table) buildFrom() string {
 	return " FROM " + q.targetTable
 }
 
-func (q QueryBuilderSourceForColumnValues) buildWhereIn() string {
+func (q SelectSource) buildWhereIn() string {
 	pks := strings.Join(q.primaryKeys, ", ")
 
 	if !strings.HasPrefix(strings.ToUpper(strings.TrimSpace(q.stmtInWhereIn)), "SELECT") {
@@ -67,7 +67,7 @@ func (q QueryBuilderSourceToUpdate) buildStmtToUpdate() (string, error) {
 	return query + q.buildWhereIn(), nil
 }
 
-func (q QueryBuilderSourceForColumnValues) buildStmtToSelect() (string, error) {
+func (q SelectSource) buildStmtToSelect() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}

@@ -40,7 +40,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, stmtInW
 	if err != nil {
 		return columns, [][]string{}, err
 	}
-	q := QueryBuilderSourceForColumnValues{
+	q := SelectSource{
 		Table: Table{
 			targetTable: table,
 		},
@@ -70,7 +70,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 		return columns, [][]string{}, err
 	}
 	q := QueryBuilderSourceToUpdate{
-		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: table,
 			},
@@ -101,7 +101,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	if err != nil {
 		return columns, [][]string{}, [][]string{}, err
 	}
-	q := QueryBuilderSourceForColumnValues{
+	q := SelectSource{
 		Table: Table{
 			targetTable: table,
 		},
@@ -119,8 +119,8 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 	}
 
 	q4u := QueryBuilderSourceToUpdate{
-		QueryBuilderSourceForColumnValues: q,
-		Interval:                          interval,
+		SelectSource: q,
+		Interval:     interval,
 	}
 	query, err = q4u.buildStmtToSelect()
 	if err != nil {
@@ -144,7 +144,7 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval I
 		return "", columns, err
 	}
 	q := QueryBuilderSourceToUpdate{
-		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: table,
 			},
@@ -228,7 +228,7 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval Interval,
 		return "", err
 	}
 	q := QueryBuilderSourceToUpdate{
-		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
+		SelectSource: SelectSource{
 
 			Table: Table{
 				targetTable: table,
