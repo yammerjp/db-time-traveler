@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/yammerjp/db-time-traveler/query"
+	"github.com/yammerjp/db-time-traveler/system"
 )
 
 var updateCmd = &cobra.Command{
@@ -44,14 +45,14 @@ func update(dryRun bool) {
 		log.Fatal(err)
 	}
 
-	beforeAndAfter, err := c.SelectToUpdateToString(table, *interval, primaryKeysWhereIn, ignoreColumns)
+	beforeAndAfter, err := system.SelectToUpdateToString(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(beforeAndAfter)
 
 	if printQuery {
-		query, err := c.UpdateQueryBuilder(table, *interval, primaryKeysWhereIn, ignoreColumns)
+		query, err := system.UpdateQueryBuilder(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -61,7 +62,7 @@ func update(dryRun bool) {
 		return
 	}
 
-	if err := c.Update(table, *interval, primaryKeysWhereIn, ignoreColumns); err != nil {
+	if err := system.Update(c, table, *interval, primaryKeysWhereIn, ignoreColumns); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("\nUpdated successfully!")
