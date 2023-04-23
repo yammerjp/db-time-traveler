@@ -146,10 +146,10 @@ func createDBConnection(conf *DB, sshc *ssh.Client) (*sql.DB, error) {
 	mysqlNet := "tcp"
 	if sshc != nil {
 		mysqlNet = "mysql+tcp"
-		dialFunc := func(addr string) (net.Conn, error) {
+		dialFunc := func(_ context.Context, addr string) (net.Conn, error) {
 			return sshc.Dial("tcp", addr)
 		}
-		mysql.RegisterDial(mysqlNet, dialFunc)
+		mysql.RegisterDialContext(mysqlNet, dialFunc)
 	}
 	dbConf := &mysql.Config{
 		User:                 conf.User,
