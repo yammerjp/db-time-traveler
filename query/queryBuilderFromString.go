@@ -1,6 +1,6 @@
 package query
 
-func BuildStmtToUpdate(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string, interval Interval) (string, error) {
+func BuildStmtToUpdate(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string, interval Interval) (UpdateStatement, error) {
 	return UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
@@ -14,25 +14,28 @@ func BuildStmtToUpdate(targetTable string, columns []string, primaryKeys []strin
 	}.buildStmtToUpdate()
 }
 
-func BuildStmtToSelect(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string) (string, error) {
-	return SelectSource{
-		Table: Table{
-			targetTable: targetTable,
+func BuildStmtToSelectBeforeAndAfter(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string, interval Interval) (SelectStatement, error) {
+	return UpdateSource{
+		SelectSource: SelectSource{
+			Table: Table{
+				targetTable: targetTable,
+			},
+			columns:       columns,
+			primaryKeys:   primaryKeys,
+			stmtInWhereIn: stmtInWhereIn,
 		},
-		columns:       columns,
-		primaryKeys:   primaryKeys,
-		stmtInWhereIn: stmtInWhereIn,
-	}.buildStmtToSelect()
+		Interval: interval,
+	}.buildStmtToSelectBeforeAndAfter()
 }
 
-func BuildStmtToSelectColumnNames(targetTable string) string {
+func BuildStmtToSelectColumnNames(targetTable string) SelectStatement {
 	return Table{targetTable: targetTable}.buildStmtToSelectColumnNames()
 }
 
-func BuildStmtToSelectColumnNamesDateRelated(targetTable string, ignoreColumnNames []string) (string, error) {
+func BuildStmtToSelectColumnNamesDateRelated(targetTable string, ignoreColumnNames []string) (SelectStatement, error) {
 	return Table{targetTable: targetTable}.buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames)
 }
 
-func BuildStmtToSelectColumnNamesOfPrimaryKey(targetTable string) (string, error) {
+func BuildStmtToSelectColumnNamesOfPrimaryKey(targetTable string) (SelectStatement, error) {
 	return Table{targetTable: targetTable}.buildStmtToSelectColumnNamesOfPrimaryKey()
 }

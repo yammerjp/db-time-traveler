@@ -30,7 +30,7 @@ func BeforeAndAfter(c *database.Connection, table string, interval query.Interva
 	return ret, nil
 }
 
-func BuildQueryUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func BuildQueryUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (query.UpdateStatement, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", err
@@ -48,7 +48,8 @@ func Update(c *database.Connection, table string, interval query.Interval, stmtI
 	if err != nil {
 		return err
 	}
-	return c.QueryExecWithNothingReturningValues(query)
+	// UpdateStatement to string
+	return c.QueryExecWithNothingReturningValues(string(query))
 }
 
 func selectDateRelatedColumns(c *database.Connection, table string, ignoreColumns []string) ([]string, error) {
@@ -56,7 +57,8 @@ func selectDateRelatedColumns(c *database.Connection, table string, ignoreColumn
 	if err != nil {
 		return []string{}, err
 	}
-	return c.QueryExecWithReturningSingleValue(query)
+	// SelectStatement to string
+	return c.QueryExecWithReturningSingleValue(string(query))
 }
 
 func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, error) {
@@ -64,14 +66,15 @@ func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, er
 	if err != nil {
 		return []string{}, err
 	}
-	primaryKeys, err := c.QueryExecWithReturningSingleValue(query)
+	// SelectStatement to string
+	primaryKeys, err := c.QueryExecWithReturningSingleValue(string(query))
 	if err != nil {
 		return []string{}, err
 	}
 	return primaryKeys, nil
 }
 
-func selectToBuildQueryUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
+func buildStmtToSelectBeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (query.SelectStatement, []string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", []string{}, err
@@ -81,7 +84,7 @@ func selectToBuildQueryUpdate(c *database.Connection, table string, interval que
 	if err != nil {
 		return "", columns, err
 	}
-	query, err := query.BuildStmtToUpdate(table, columns, pks, stmtInWhereIn, interval)
+	query, err := query.BuildStmtToSelectBeforeAndAfter(table, columns, pks, stmtInWhereIn, interval)
 	return query, columns, err
 }
 
@@ -90,11 +93,12 @@ func beforeAndAfter(c *database.Connection, table string, interval query.Interva
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
 	}
-	query, columns, err := selectToBuildQueryUpdate(c, table, interval, stmtInWhereIn, ignoreColumns)
+	query, columns, err := buildStmtToSelectBeforeAndAfter(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
-	selectStmtReturnColumnValues, err := c.QueryExec(query)
+	// SelectStatement to string
+	selectStmtReturnColumnValues, err := c.QueryExec(string(query))
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
