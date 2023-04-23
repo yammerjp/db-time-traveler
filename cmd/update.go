@@ -36,7 +36,7 @@ func initUpdate(f *flag.FlagSet) {
 func update(dryRun bool) {
 	c, err := connection()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer c.Close()
 

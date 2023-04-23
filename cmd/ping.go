@@ -23,7 +23,7 @@ var pingCmd = &cobra.Command{
 func ping() {
 	c, err := connection()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer c.Close()
 
