@@ -89,10 +89,10 @@ func (t Table) buildStmtToSelectColumnNames() SelectStatement {
 	return SelectStatement(`SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + t.TargetTable + `"`)
 }
 
-func (t Table) BuildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (SelectStatement, error) {
-	return SelectStatement(string(t.buildStmtToSelectColumnNames()) + " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"" + strings.Join(ignoreColumnNames, "\", \"") + "\")"), nil // + DATA_TYPE = time
+func (t Table) BuildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) SelectStatement {
+	return SelectStatement(string(t.buildStmtToSelectColumnNames()) + ` AND DATA_TYPE IN ("date", "datetime", "timestamp") AND COLUMN_NAME NOT IN ("` + strings.Join(ignoreColumnNames, `", "`) + `")`) // + DATA_TYPE = time
 }
 
-func (t Table) BuildStmtToSelectColumnNamesOfPrimaryKey() (SelectStatement, error) {
-	return t.buildStmtToSelectColumnNames() + " AND COLUMN_KEY = \"PRI\"", nil
+func (t Table) BuildStmtToSelectColumnNamesOfPrimaryKey() SelectStatement {
+	return t.buildStmtToSelectColumnNames() + ` AND COLUMN_KEY = "PRI"`
 }

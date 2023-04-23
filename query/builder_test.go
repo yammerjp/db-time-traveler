@@ -87,12 +87,9 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 
 func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"trial_end_date\", \"updated_at\")")
-	ret, err := Table{
+	ret := Table{
 		TargetTable: "accounts",
 	}.BuildStmtToSelectColumnNamesDateRelated([]string{"trial_end_date", "updated_at"})
-	if err != nil {
-		t.Error(err)
-	}
 	if ret != expected {
 		fmt.Printf("expected: %s\nreturned: %s\n", expected, ret)
 		t.Error("selectDateRelatedColumnsQueryBuilder must be return a expected statement")
@@ -101,12 +98,9 @@ func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 
 func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\"")
-	ret, err := Table{
+	ret := Table{
 		TargetTable: "accounts",
 	}.BuildStmtToSelectColumnNamesOfPrimaryKey()
-	if err != nil {
-		t.Error(err)
-	}
 	if ret != expected {
 		fmt.Printf("expected: %s\nreturned: %s\n", expected, ret)
 		t.Error("selectDateRelatedColumnsQueryBuilder must be return a expected statement")

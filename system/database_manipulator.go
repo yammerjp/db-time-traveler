@@ -64,25 +64,15 @@ func Update(c *database.Connection, table string, interval query.Interval, stmtI
 }
 
 func selectDateRelatedColumns(c *database.Connection, table string, ignoreColumns []string) ([]string, error) {
-	query, err := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesDateRelated(ignoreColumns)
-	if err != nil {
-		return []string{}, err
-	}
+	query := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesDateRelated(ignoreColumns)
 	// SelectStatement to string
 	return c.QueryExecWithReturningSingleValue(string(query))
 }
 
 func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, error) {
-	query, err := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesOfPrimaryKey()
-	if err != nil {
-		return []string{}, err
-	}
+	query := query.Table{TargetTable: table}.BuildStmtToSelectColumnNamesOfPrimaryKey()
 	// SelectStatement to string
-	primaryKeys, err := c.QueryExecWithReturningSingleValue(string(query))
-	if err != nil {
-		return []string{}, err
-	}
-	return primaryKeys, nil
+	return c.QueryExecWithReturningSingleValue(string(query))
 }
 
 func BuildStmtToSelectBeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (query.SelectStatement, []string, error) {
