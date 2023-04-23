@@ -5,7 +5,7 @@ import (
 )
 
 func (c *DatabaseConnection) SelectDateRelatedColumns(table string, ignoreColumns []string) ([]string, error) {
-	q := QueryBuilderSourceForSchemaInformation{
+	q := Table{
 		targetTable: table,
 	}
 	query, err := q.buildStmtToSelectColumnNamesDateRelated(ignoreColumns)
@@ -16,7 +16,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumns(table string, ignoreColumn
 }
 
 func (c *DatabaseConnection) SelectPrimaryKeyColumns(table string) ([]string, error) {
-	q := QueryBuilderSourceForSchemaInformation{
+	q := Table{
 		targetTable: table,
 	}
 	query, err := q.buildStmtToSelectColumnNamesOfPrimaryKey()
@@ -41,7 +41,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValues(table string, stmtInW
 		return columns, [][]string{}, err
 	}
 	q := QueryBuilderSourceForColumnValues{
-		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+		Table: Table{
 			targetTable: table,
 		},
 		columns:       columns,
@@ -71,7 +71,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesToBeUpdated(table stri
 	}
 	q := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
-			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+			Table: Table{
 				targetTable: table,
 			},
 			columns:       columns,
@@ -102,7 +102,7 @@ func (c *DatabaseConnection) SelectDateRelatedColumnValuesNowAndToBeUpdated(tabl
 		return columns, [][]string{}, [][]string{}, err
 	}
 	q := QueryBuilderSourceForColumnValues{
-		QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+		Table: Table{
 			targetTable: table,
 		},
 		columns:       columns,
@@ -145,7 +145,7 @@ func (c *DatabaseConnection) SelectToUpdateQueryBuilder(table string, interval I
 	}
 	q := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
-			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+			Table: Table{
 				targetTable: table,
 			},
 			columns:       columns,
@@ -230,7 +230,7 @@ func (c *DatabaseConnection) UpdateQueryBuilder(table string, interval Interval,
 	q := QueryBuilderSourceToUpdate{
 		QueryBuilderSourceForColumnValues: QueryBuilderSourceForColumnValues{
 
-			QueryBuilderSourceForSchemaInformation: QueryBuilderSourceForSchemaInformation{
+			Table: Table{
 				targetTable: table,
 			},
 			columns:       columns,

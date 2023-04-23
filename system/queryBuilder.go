@@ -12,12 +12,12 @@ type Interval struct {
 	Term   string
 }
 
-type QueryBuilderSourceForSchemaInformation struct {
+type Table struct {
 	targetTable string
 }
 
 type QueryBuilderSourceForColumnValues struct {
-	QueryBuilderSourceForSchemaInformation
+	Table
 	columns       []string
 	primaryKeys   []string
 	stmtInWhereIn string
@@ -38,7 +38,7 @@ func (q *Interval) buildInterval() string {
 	return fmt.Sprintf(" %s INTERVAL %d %s", symbol, q.Num, q.Term)
 }
 
-func (q QueryBuilderSourceForSchemaInformation) buildFrom() string {
+func (q Table) buildFrom() string {
 	return " FROM " + q.targetTable
 }
 
@@ -102,14 +102,14 @@ func (q QueryBuilderSourceToUpdate) buildStmtToSelectBeforeAndAfter() (string, e
 	return query + q.buildFrom() + q.buildWhereIn(), nil
 }
 
-func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNames() string {
+func (q Table) buildStmtToSelectColumnNames() string {
 	return `SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + q.targetTable + `"`
 }
 
-func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (string, error) {
+func (q Table) buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (string, error) {
 	return q.buildStmtToSelectColumnNames() + " AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"" + strings.Join(ignoreColumnNames, "\", \"") + "\")", nil // + DATA_TYPE = time
 }
 
-func (q QueryBuilderSourceForSchemaInformation) buildStmtToSelectColumnNamesOfPrimaryKey() (string, error) {
+func (q Table) buildStmtToSelectColumnNamesOfPrimaryKey() (string, error) {
 	return q.buildStmtToSelectColumnNames() + " AND COLUMN_KEY = \"PRI\"", nil
 }
