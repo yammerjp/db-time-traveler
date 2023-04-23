@@ -2,16 +2,11 @@ package system
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 )
 
 func TestLoadConfigYaml(t *testing.T) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		t.Error(err)
-	}
 	expected := Config{
 		DefaultConnection: "local",
 		Connections: []ConnectionConfig{
@@ -26,7 +21,7 @@ func TestLoadConfigYaml(t *testing.T) {
 			},
 		},
 	}
-	ret, err := loadConfigFromYaml(home + "/go/src/github.com/yammerjp/db-time-traveler/.db-time-traveler.yml")
+	ret, err := loadConfigFromYaml("../.db-time-traveler.yml")
 	if err != nil {
 		t.Error(err)
 	}
