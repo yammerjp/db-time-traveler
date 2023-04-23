@@ -4,11 +4,11 @@ func BuildStmtToUpdate(targetTable string, columns []string, primaryKeys []strin
 	return UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
-				targetTable: targetTable,
+				TargetTable: targetTable,
 			},
-			columns:       columns,
-			primaryKeys:   primaryKeys,
-			stmtInWhereIn: stmtInWhereIn,
+			Columns:       columns,
+			PrimaryKeys:   primaryKeys,
+			StmtInWhereIn: stmtInWhereIn,
 		},
 		Interval: interval,
 	}.buildStmtToUpdate()
@@ -18,24 +18,24 @@ func BuildStmtToSelectBeforeAndAfter(targetTable string, columns []string, prima
 	return UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
-				targetTable: targetTable,
+				TargetTable: targetTable,
 			},
-			columns:       columns,
-			primaryKeys:   primaryKeys,
-			stmtInWhereIn: stmtInWhereIn,
+			Columns:       columns,
+			PrimaryKeys:   primaryKeys,
+			StmtInWhereIn: stmtInWhereIn,
 		},
 		Interval: interval,
 	}.buildStmtToSelectBeforeAndAfter()
 }
 
 func BuildStmtToSelectColumnNames(targetTable string) SelectStatement {
-	return Table{targetTable: targetTable}.buildStmtToSelectColumnNames()
+	return Table{TargetTable: targetTable}.buildStmtToSelectColumnNames()
 }
 
 func BuildStmtToSelectColumnNamesDateRelated(targetTable string, ignoreColumnNames []string) (SelectStatement, error) {
-	return Table{targetTable: targetTable}.buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames)
+	return Table{TargetTable: targetTable}.buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames)
 }
 
 func BuildStmtToSelectColumnNamesOfPrimaryKey(targetTable string) (SelectStatement, error) {
-	return Table{targetTable: targetTable}.buildStmtToSelectColumnNamesOfPrimaryKey()
+	return Table{TargetTable: targetTable}.buildStmtToSelectColumnNamesOfPrimaryKey()
 }

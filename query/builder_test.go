@@ -11,11 +11,11 @@ func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
-				targetTable: "accounts",
+				TargetTable: "accounts",
 			},
-			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
-			primaryKeys:   []string{"id"},
-			stmtInWhereIn: "3",
+			Columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			PrimaryKeys:   []string{"id"},
+			StmtInWhereIn: "3",
 		},
 		Interval: Interval{
 			IsPast: true,
@@ -37,11 +37,11 @@ func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
-				targetTable: "accounts",
+				TargetTable: "accounts",
 			},
-			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
-			primaryKeys:   []string{"id"},
-			stmtInWhereIn: "3",
+			Columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			PrimaryKeys:   []string{"id"},
+			StmtInWhereIn: "3",
 		},
 		Interval: Interval{
 			IsPast: true,
@@ -64,11 +64,11 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
-				targetTable: "accounts",
+				TargetTable: "accounts",
 			},
-			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
-			primaryKeys:   []string{"id"},
-			stmtInWhereIn: "SELECT id FROM accounts",
+			Columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
+			PrimaryKeys:   []string{"id"},
+			StmtInWhereIn: "SELECT id FROM accounts",
 		},
 		Interval: Interval{
 			IsPast: true,
@@ -88,7 +88,7 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND DATA_TYPE IN (\"date\", \"datetime\", \"timestamp\") AND COLUMN_NAME NOT IN (\"trial_end_date\", \"updated_at\")")
 	ret, err := Table{
-		targetTable: "accounts",
+		TargetTable: "accounts",
 	}.buildStmtToSelectColumnNamesDateRelated([]string{"trial_end_date", "updated_at"})
 	if err != nil {
 		t.Error(err)
@@ -102,7 +102,7 @@ func TestBuildStmtToSelectColumnNamesDateRelated(t *testing.T) {
 func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 	expected := SelectStatement("SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = \"accounts\" AND COLUMN_KEY = \"PRI\"")
 	ret, err := Table{
-		targetTable: "accounts",
+		TargetTable: "accounts",
 	}.buildStmtToSelectColumnNamesOfPrimaryKey()
 	if err != nil {
 		t.Error(err)

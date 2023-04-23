@@ -17,14 +17,14 @@ type Interval struct {
 }
 
 type Table struct {
-	targetTable string
+	TargetTable string
 }
 
 type SelectSource struct {
 	Table
-	columns       []string
-	primaryKeys   []string
-	stmtInWhereIn string
+	Columns       []string
+	PrimaryKeys   []string
+	StmtInWhereIn string
 }
 
 type UpdateSource struct {
@@ -43,26 +43,26 @@ func (i *Interval) buildInterval() string {
 }
 
 func (t Table) buildFrom() string {
-	return " FROM " + t.targetTable
+	return " FROM " + t.TargetTable
 }
 
 func (s SelectSource) buildWhereIn() string {
-	pks := strings.Join(s.primaryKeys, ", ")
+	pks := strings.Join(s.PrimaryKeys, ", ")
 
-	if !strings.HasPrefix(strings.ToUpper(strings.TrimSpace(s.stmtInWhereIn)), "SELECT") {
-		return fmt.Sprintf(" WHERE %s IN ( %s )", pks, s.stmtInWhereIn)
+	if !strings.HasPrefix(strings.ToUpper(strings.TrimSpace(s.StmtInWhereIn)), "SELECT") {
+		return fmt.Sprintf(" WHERE %s IN ( %s )", pks, s.StmtInWhereIn)
 	}
 
 	// MySQL does not allow specifying a table with the same name in WHERE IN SELECT during UPDATE, so an alias is applied to avoid this problem.
-	return fmt.Sprintf(" WHERE %s IN ( SELECT %s FROM ( %s ) as any )", pks, pks, s.stmtInWhereIn)
+	return fmt.Sprintf(" WHERE %s IN ( SELECT %s FROM ( %s ) as any )", pks, pks, s.StmtInWhereIn)
 }
 
 func (u UpdateSource) buildStmtToUpdate() (UpdateStatement, error) {
-	if len(u.columns) == 0 {
+	if len(u.Columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
-	query := "UPDATE " + u.targetTable + " SET "
-	for i, column := range u.columns {
+	query := "UPDATE " + u.TargetTable + " SET "
+	for i, column := range u.Columns {
 		if i != 0 {
 			query += ", "
 		}
@@ -72,11 +72,11 @@ func (u UpdateSource) buildStmtToUpdate() (UpdateStatement, error) {
 }
 
 func (q UpdateSource) buildStmtToSelectBeforeAndAfter() (SelectStatement, error) {
-	if len(q.columns) == 0 {
+	if len(q.Columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
-	query := "SELECT " + strings.Join(q.primaryKeys, ", ") + ", "
-	for i, v := range q.columns {
+	query := "SELECT " + strings.Join(q.PrimaryKeys, ", ") + ", "
+	for i, v := range q.Columns {
 		if i != 0 {
 			query += ", "
 		}
@@ -86,7 +86,7 @@ func (q UpdateSource) buildStmtToSelectBeforeAndAfter() (SelectStatement, error)
 }
 
 func (t Table) buildStmtToSelectColumnNames() SelectStatement {
-	return SelectStatement(`SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + t.targetTable + `"`)
+	return SelectStatement(`SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = "` + t.TargetTable + `"`)
 }
 
 func (t Table) buildStmtToSelectColumnNamesDateRelated(ignoreColumnNames []string) (SelectStatement, error) {
