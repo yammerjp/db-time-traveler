@@ -45,14 +45,14 @@ func update(dryRun bool) {
 		log.Fatal(err)
 	}
 
-	beforeAndAfter, err := system.SelectToUpdateToString(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
+	beforeAndAfter, err := system.BeforeAndAfter(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(beforeAndAfter)
 
 	if printQuery {
-		query, err := system.UpdateQueryBuilder(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
+		query, err := system.BuildQueryUpdate(c, table, *interval, primaryKeysWhereIn, ignoreColumns)
 		if err != nil {
 			log.Fatal(err)
 		}

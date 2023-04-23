@@ -105,29 +105,3 @@ func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 		t.Error("selectDateRelatedColumnsQueryBuilder must be return a expected statement")
 	}
 }
-
-func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
-	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE id IN ( 3 )"
-	ret, err := UpdateSource{
-		SelectSource: SelectSource{
-			Table: Table{
-				targetTable: "accounts",
-			},
-			columns:       []string{"trial_end_date", "registered_campaign_end_datetime", "created_at", "updated_at"},
-			primaryKeys:   []string{"id"},
-			stmtInWhereIn: "3",
-		},
-		Interval: Interval{
-			IsPast: true,
-			Num:    1,
-			Term:   "MONTH",
-		},
-	}.buildStmtToSelectBeforeAndAfter()
-	if err != nil {
-		t.Error(err)
-	}
-	if ret != expected {
-		fmt.Printf("expected: %s\nreturned: %s\n", expected, ret)
-		t.Error("selectUpdatingColumnValuesBeforeAndAfterQueryBuilder must be return a expected statement")
-	}
-}

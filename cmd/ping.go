@@ -58,8 +58,16 @@ func initConnection(f *flag.FlagSet) {
 	f.StringVarP(&selectedConnection, "connection", "", "", "connection name")
 }
 
-func loadConnectionConfigFromCommandlineArguments() *configuration.ConnectionConfig {
-	return &configuration.ConnectionConfig{
+func loadConnectionConfig() (*configuration.ConnectionConfig, error) {
+	config, err := configuration.LoadConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+	connection, err := config.FindConnection(selectedConnection)
+	if err != nil {
+		return nil, err
+	}
+	fromCmdArgs := &configuration.ConnectionConfig{
 		Hostname:      host,
 		Port:          fmt.Sprintf("%d", port),
 		Username:      username,
@@ -71,18 +79,6 @@ func loadConnectionConfigFromCommandlineArguments() *configuration.ConnectionCon
 		SSHPort:       fmt.Sprintf("%d", sshPort),
 		SSHPassphrase: sshPassphrase,
 	}
-}
-
-func loadConnectionConfig() (*configuration.ConnectionConfig, error) {
-	config, err := configuration.LoadConfig(configPath)
-	if err != nil {
-		return nil, err
-	}
-	connection, err := config.FindConnection(selectedConnection)
-	if err != nil {
-		return nil, err
-	}
-	fromCmdArgs := loadConnectionConfigFromCommandlineArguments()
 
 	overridePort := false
 	overrideSSHPort := false
@@ -98,9 +94,9 @@ func loadConnectionConfig() (*configuration.ConnectionConfig, error) {
 }
 
 func connect() (*database.Connection, error) {
-	connection, err := loadConnectionConfig()
+	connConfig, err := loadConnectionConfig()
 	if err != nil {
 		return nil, err
 	}
-	return connection.CreateConnection()
+	return connConfig.CreateConnection()
 }

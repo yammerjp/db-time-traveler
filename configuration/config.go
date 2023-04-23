@@ -79,7 +79,7 @@ func (c *Config) FindConnection(targetConnectionName string) (*ConnectionConfig,
 }
 
 func (conn *ConnectionConfig) CreateConnection() (*database.Connection, error) {
-	var dap database.DatabaseAccessPointHub
+	var dap database.AccessPointHub
 	var err error
 	if conn.SSHHost != "" {
 		dap, err = conn.toDapOnSSH()
@@ -92,12 +92,12 @@ func (conn *ConnectionConfig) CreateConnection() (*database.Connection, error) {
 	return dap.CreateConnection()
 }
 
-func (conn *ConnectionConfig) toDapWithoutSSH() (*database.DatabaseAccessPoint, error) {
+func (conn *ConnectionConfig) toDapWithoutSSH() (*database.AccessPoint, error) {
 	port, err := strconv.Atoi(conn.Port)
 	if err != nil {
 		return nil, err
 	}
-	return &database.DatabaseAccessPoint{
+	return &database.AccessPoint{
 		Username: conn.Username,
 		Password: conn.Password,
 		Host:     conn.Hostname,
@@ -106,8 +106,8 @@ func (conn *ConnectionConfig) toDapWithoutSSH() (*database.DatabaseAccessPoint, 
 	}, nil
 }
 
-func (conn *ConnectionConfig) toDapOnSSH() (*database.DatabaseAccessPointOnSSH, error) {
-	return &database.DatabaseAccessPointOnSSH{
+func (conn *ConnectionConfig) toDapOnSSH() (*database.AccessPointOnSSH, error) {
+	return &database.AccessPointOnSSH{
 		DB: &database.DB{
 			Host:     conn.Hostname,
 			Port:     conn.Port,
@@ -159,65 +159,65 @@ func (c *Config) ToString() string {
 	return ret
 }
 
-func (conn *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig, overridePort bool, overrideSSHPort bool) (*ConnectionConfig, error) {
+func (conn *ConnectionConfig) Override(prioritizedConn *ConnectionConfig, overridePort bool, overrideSSHPort bool) (*ConnectionConfig, error) {
 	var ret ConnectionConfig
-	if prioritizedConnection.Name != "" {
-		ret.Name = prioritizedConnection.Name
+	if prioritizedConn.Name != "" {
+		ret.Name = prioritizedConn.Name
 	} else {
 		ret.Name = conn.Name
 	}
-	if prioritizedConnection.Driver != "" {
-		ret.Driver = prioritizedConnection.Driver
+	if prioritizedConn.Driver != "" {
+		ret.Driver = prioritizedConn.Driver
 	} else {
 		ret.Driver = conn.Driver
 	}
-	if prioritizedConnection.Hostname != "" {
-		ret.Hostname = prioritizedConnection.Hostname
+	if prioritizedConn.Hostname != "" {
+		ret.Hostname = prioritizedConn.Hostname
 	} else {
 		ret.Hostname = conn.Hostname
 	}
 	if overridePort {
-		ret.Port = prioritizedConnection.Port
+		ret.Port = prioritizedConn.Port
 	} else {
 		ret.Port = conn.Port
 	}
-	if prioritizedConnection.Username != "" {
-		ret.Username = prioritizedConnection.Username
+	if prioritizedConn.Username != "" {
+		ret.Username = prioritizedConn.Username
 	} else {
 		ret.Username = conn.Username
 	}
-	if prioritizedConnection.Password != "" {
-		ret.Password = prioritizedConnection.Password
+	if prioritizedConn.Password != "" {
+		ret.Password = prioritizedConn.Password
 	} else {
 		ret.Password = conn.Password
 	}
-	if prioritizedConnection.Database != "" {
-		ret.Database = prioritizedConnection.Database
+	if prioritizedConn.Database != "" {
+		ret.Database = prioritizedConn.Database
 	} else {
 		ret.Database = conn.Database
 	}
-	if prioritizedConnection.SSHKeyPath != "" {
-		ret.SSHKeyPath = prioritizedConnection.SSHKeyPath
+	if prioritizedConn.SSHKeyPath != "" {
+		ret.SSHKeyPath = prioritizedConn.SSHKeyPath
 	} else {
 		ret.SSHKeyPath = conn.SSHKeyPath
 	}
-	if prioritizedConnection.SSHHost != "" {
-		ret.SSHHost = prioritizedConnection.SSHHost
+	if prioritizedConn.SSHHost != "" {
+		ret.SSHHost = prioritizedConn.SSHHost
 	} else {
 		ret.SSHHost = conn.SSHHost
 	}
 	if overrideSSHPort {
-		ret.SSHPort = prioritizedConnection.SSHPort
+		ret.SSHPort = prioritizedConn.SSHPort
 	} else {
 		ret.SSHPort = conn.SSHPort
 	}
-	if prioritizedConnection.SSHUser != "" {
-		ret.SSHUser = prioritizedConnection.SSHUser
+	if prioritizedConn.SSHUser != "" {
+		ret.SSHUser = prioritizedConn.SSHUser
 	} else {
 		ret.SSHUser = conn.SSHUser
 	}
-	if prioritizedConnection.SSHPassphrase != "" {
-		ret.SSHPassphrase = prioritizedConnection.SSHPassphrase
+	if prioritizedConn.SSHPassphrase != "" {
+		ret.SSHPassphrase = prioritizedConn.SSHPassphrase
 	} else {
 		ret.SSHPassphrase = conn.SSHPassphrase
 	}

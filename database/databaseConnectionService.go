@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type DatabaseAccessPoint struct {
+type AccessPoint struct {
 	Username string
 	Password string
 	Host     string
@@ -24,11 +24,11 @@ type DatabaseAccessPoint struct {
 	Schema   string
 }
 
-func (p *DatabaseAccessPoint) toString() string {
+func (p *AccessPoint) toString() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", p.Username, p.Password, p.Host, p.Port, p.Schema)
 }
 
-func (p *DatabaseAccessPoint) connect() (*sql.DB, error) {
+func (p *AccessPoint) connect() (*sql.DB, error) {
 	sql.Register("mysql-proxy", proxy.NewProxyContext(&mysql.MySQLDriver{}, &proxy.HooksContext{
 		Open: func(_ context.Context, _ interface{}, conn *proxy.Conn) error {
 			log.Println("Open")
@@ -72,11 +72,11 @@ type Connection struct {
 	sshConnection *ssh.Client
 }
 
-type DatabaseAccessPointHub interface {
+type AccessPointHub interface {
 	CreateConnection() (*Connection, error)
 }
 
-func (dap *DatabaseAccessPoint) CreateConnection() (*Connection, error) {
+func (dap *AccessPoint) CreateConnection() (*Connection, error) {
 	db, err := dap.connect()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (c *Connection) Close() {
 	}
 }
 
-type DatabaseAccessPointOnSSH struct {
+type AccessPointOnSSH struct {
 	DB  *DB
 	SSH *SSH
 }
@@ -163,7 +163,7 @@ func createDBConnection(conf *DB, sshc *ssh.Client) (*sql.DB, error) {
 	return sql.Open("mysql", dbConf.FormatDSN())
 }
 
-func (p *DatabaseAccessPointOnSSH) CreateConnection() (*Connection, error) {
+func (p *AccessPointOnSSH) CreateConnection() (*Connection, error) {
 	sc, err := createSSHConnection(p.SSH)
 	if err != nil {
 		return nil, err

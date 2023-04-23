@@ -25,20 +25,6 @@ func BuildStmtToSelect(targetTable string, columns []string, primaryKeys []strin
 	}.buildStmtToSelect()
 }
 
-func BuildStmtToSelectBeforeAndAfter(targetTable string, columns []string, primaryKeys []string, stmtInWhereIn string, interval Interval) (string, error) {
-	return UpdateSource{
-		SelectSource: SelectSource{
-			Table: Table{
-				targetTable: targetTable,
-			},
-			columns:       columns,
-			primaryKeys:   primaryKeys,
-			stmtInWhereIn: stmtInWhereIn,
-		},
-		Interval: interval,
-	}.buildStmtToSelectBeforeAndAfter()
-}
-
 func BuildStmtToSelectColumnNames(targetTable string) string {
 	return Table{targetTable: targetTable}.buildStmtToSelectColumnNames()
 }

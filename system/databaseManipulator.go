@@ -7,9 +7,9 @@ import (
 	"github.com/yammerjp/db-time-traveler/query"
 )
 
-func SelectToUpdateToString(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func BeforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	ret := ""
-	primaryKeys, stmtInWhereIns, columns, columnValuesBefore, columnValuesAfter, err := selectToUpdate(c, table, interval, stmtInWhereIn, ignoreColumns)
+	primaryKeys, stmtInWhereIns, columns, columnValuesBefore, columnValuesAfter, err := beforeAndAfter(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return "", nil
 	}
@@ -30,7 +30,7 @@ func SelectToUpdateToString(c *database.Connection, table string, interval query
 	return ret, nil
 }
 
-func UpdateQueryBuilder(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
+func BuildQueryUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", err
@@ -44,7 +44,7 @@ func UpdateQueryBuilder(c *database.Connection, table string, interval query.Int
 }
 
 func Update(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) error {
-	query, err := UpdateQueryBuilder(c, table, interval, stmtInWhereIn, ignoreColumns)
+	query, err := BuildQueryUpdate(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func selectPrimaryKeyColumns(c *database.Connection, table string) ([]string, er
 	return primaryKeys, nil
 }
 
-func selectToUpdateQueryBuilder(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
+func selectToBuildQueryUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) (string, []string, error) {
 	columns, err := selectDateRelatedColumns(c, table, ignoreColumns)
 	if err != nil {
 		return "", []string{}, err
@@ -85,12 +85,12 @@ func selectToUpdateQueryBuilder(c *database.Connection, table string, interval q
 	return query, columns, err
 }
 
-func selectToUpdate(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
+func beforeAndAfter(c *database.Connection, table string, interval query.Interval, stmtInWhereIn string, ignoreColumns []string) ([]string, [][]string, []string, [][]string, [][]string, error) {
 	primaryKeys, err := selectPrimaryKeyColumns(c, table)
 	if err != nil {
 		return []string{}, [][]string{}, []string{}, [][]string{}, [][]string{}, err
 	}
-	query, columns, err := selectToUpdateQueryBuilder(c, table, interval, stmtInWhereIn, ignoreColumns)
+	query, columns, err := selectToBuildQueryUpdate(c, table, interval, stmtInWhereIn, ignoreColumns)
 	if err != nil {
 		return primaryKeys, [][]string{}, columns, [][]string{}, [][]string{}, err
 	}
