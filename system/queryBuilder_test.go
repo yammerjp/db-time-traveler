@@ -8,7 +8,7 @@ import (
 func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 
 	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE id IN ( 3 )"
-	ret, err := QueryBuilderSourceToUpdate{
+	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: "accounts",
@@ -35,7 +35,7 @@ func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 
 	expected := "UPDATE accounts SET trial_end_date = (trial_end_date - INTERVAL 1 MONTH), registered_campaign_end_datetime = (registered_campaign_end_datetime - INTERVAL 1 MONTH), created_at = (created_at - INTERVAL 1 MONTH), updated_at = (updated_at - INTERVAL 1 MONTH) WHERE id IN ( SELECT id FROM ( SELECT id FROM accounts ) as any )"
-	ret, err := QueryBuilderSourceToUpdate{
+	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: "accounts",
@@ -80,7 +80,7 @@ func TestBuildStmtToSelect(t *testing.T) {
 
 func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
 	expected := "SELECT trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at - INTERVAL 1 MONTH, updated_at - INTERVAL 1 MONTH FROM accounts WHERE id IN ( 3 )"
-	ret, err := QueryBuilderSourceToUpdate{
+	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: "accounts",
@@ -134,7 +134,7 @@ func TestBuildStmtToSelectColumnNamesOfPrimaryKey(t *testing.T) {
 
 func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 	expected := "SELECT id, trial_end_date, trial_end_date - INTERVAL 1 MONTH, registered_campaign_end_datetime, registered_campaign_end_datetime - INTERVAL 1 MONTH, created_at, created_at - INTERVAL 1 MONTH, updated_at, updated_at - INTERVAL 1 MONTH FROM accounts WHERE id IN ( 3 )"
-	ret, err := QueryBuilderSourceToUpdate{
+	ret, err := UpdateSource{
 		SelectSource: SelectSource{
 			Table: Table{
 				targetTable: "accounts",

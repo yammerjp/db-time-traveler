@@ -23,7 +23,7 @@ type SelectSource struct {
 	stmtInWhereIn string
 }
 
-type QueryBuilderSourceToUpdate struct {
+type UpdateSource struct {
 	SelectSource
 	Interval
 }
@@ -53,7 +53,7 @@ func (q SelectSource) buildWhereIn() string {
 	return fmt.Sprintf(" WHERE %s IN ( SELECT %s FROM ( %s ) as any )", pks, pks, q.stmtInWhereIn)
 }
 
-func (q QueryBuilderSourceToUpdate) buildStmtToUpdate() (string, error) {
+func (q UpdateSource) buildStmtToUpdate() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
@@ -74,7 +74,7 @@ func (q SelectSource) buildStmtToSelect() (string, error) {
 	return "SELECT " + strings.Join(q.columns, ", ") + q.buildFrom() + q.buildWhereIn(), nil
 }
 
-func (q QueryBuilderSourceToUpdate) buildStmtToSelect() (string, error) {
+func (q UpdateSource) buildStmtToSelect() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
@@ -88,7 +88,7 @@ func (q QueryBuilderSourceToUpdate) buildStmtToSelect() (string, error) {
 	return query + q.buildFrom() + q.buildWhereIn(), nil
 }
 
-func (q QueryBuilderSourceToUpdate) buildStmtToSelectBeforeAndAfter() (string, error) {
+func (q UpdateSource) buildStmtToSelectBeforeAndAfter() (string, error) {
 	if len(q.columns) == 0 {
 		return "", errors.New("must be specify any columns")
 	}
