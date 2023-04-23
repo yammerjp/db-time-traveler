@@ -78,7 +78,7 @@ func (c *Config) FindConnection(targetConnectionName string) (*ConnectionConfig,
 	return nil, errors.New("Default Connection is not found")
 }
 
-func (conn *ConnectionConfig) CreateDatabaseConnection() (*database.DatabaseConnection, error) {
+func (conn *ConnectionConfig) CreateConnection() (*database.Connection, error) {
 	var dap database.DatabaseAccessPointHub
 	var err error
 	if conn.SSHHost != "" {
@@ -89,7 +89,7 @@ func (conn *ConnectionConfig) CreateDatabaseConnection() (*database.DatabaseConn
 	if err != nil {
 		return nil, err
 	}
-	return dap.CreateDatabaseConnection()
+	return dap.CreateConnection()
 }
 
 func (conn *ConnectionConfig) toDapWithoutSSH() (*database.DatabaseAccessPoint, error) {

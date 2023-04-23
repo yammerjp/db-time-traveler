@@ -67,16 +67,16 @@ func (p *DatabaseAccessPoint) connect() (*sql.DB, error) {
 	return db, nil
 }
 
-type DatabaseConnection struct {
+type Connection struct {
 	connection    *sql.DB
 	sshConnection *ssh.Client
 }
 
 type DatabaseAccessPointHub interface {
-	CreateDatabaseConnection() (*DatabaseConnection, error)
+	CreateConnection() (*Connection, error)
 }
 
-func (dap *DatabaseAccessPoint) CreateDatabaseConnection() (*DatabaseConnection, error) {
+func (dap *DatabaseAccessPoint) CreateConnection() (*Connection, error) {
 	db, err := dap.connect()
 	if err != nil {
 		return nil, err
@@ -84,10 +84,10 @@ func (dap *DatabaseAccessPoint) CreateDatabaseConnection() (*DatabaseConnection,
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
-	return &DatabaseConnection{connection: db}, nil
+	return &Connection{connection: db}, nil
 }
 
-func (c *DatabaseConnection) Close() {
+func (c *Connection) Close() {
 	c.connection.Close()
 	if c.sshConnection != nil {
 		c.sshConnection.Close()
@@ -163,7 +163,7 @@ func createDBConnection(conf *DB, sshc *ssh.Client) (*sql.DB, error) {
 	return sql.Open("mysql", dbConf.FormatDSN())
 }
 
-func (p *DatabaseAccessPointOnSSH) CreateDatabaseConnection() (*DatabaseConnection, error) {
+func (p *DatabaseAccessPointOnSSH) CreateConnection() (*Connection, error) {
 	sc, err := createSSHConnection(p.SSH)
 	if err != nil {
 		return nil, err
@@ -173,5 +173,5 @@ func (p *DatabaseAccessPointOnSSH) CreateDatabaseConnection() (*DatabaseConnecti
 	if err != nil {
 		return nil, err
 	}
-	return &DatabaseConnection{connection: dbConnection, sshConnection: sc}, nil
+	return &Connection{connection: dbConnection, sshConnection: sc}, nil
 }

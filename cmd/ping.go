@@ -34,7 +34,7 @@ func ping() {
 	}
 }
 
-func connection() (*database.DatabaseConnection, error) {
+func connection() (*database.Connection, error) {
 	return connect()
 }
 
@@ -97,10 +97,10 @@ func loadConnectionConfig() (*configuration.ConnectionConfig, error) {
 	return connection.Override(fromCmdArgs, overridePort, overrideSSHPort)
 }
 
-func connect() (*database.DatabaseConnection, error) {
+func connect() (*database.Connection, error) {
 	connection, err := loadConnectionConfig()
 	if err != nil {
 		return nil, err
 	}
-	return connection.CreateDatabaseConnection()
+	return connection.CreateConnection()
 }

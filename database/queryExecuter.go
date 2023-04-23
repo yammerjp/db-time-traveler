@@ -6,16 +6,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func (c *DatabaseConnection) Ping() error {
+func (c *Connection) Ping() error {
 	return c.connection.Ping()
 }
 
-func (c *DatabaseConnection) QueryExecWithNothingReturningValues(query string) error {
+func (c *Connection) QueryExecWithNothingReturningValues(query string) error {
 	_, err := c.connection.Exec(query)
 	return err
 }
 
-func (c *DatabaseConnection) QueryExecWithReturningSingleValue(query string) ([]string, error) {
+func (c *Connection) QueryExecWithReturningSingleValue(query string) ([]string, error) {
 	rows, err := c.QueryExec(query)
 	if err != nil {
 		return []string{}, err
@@ -27,7 +27,7 @@ func (c *DatabaseConnection) QueryExecWithReturningSingleValue(query string) ([]
 	return columns, nil
 }
 
-func (c *DatabaseConnection) QueryExec(query string) ([][]string, error) {
+func (c *Connection) QueryExec(query string) ([][]string, error) {
 	rows, err := c.connection.Query(query)
 	if err != nil {
 		return nil, err
