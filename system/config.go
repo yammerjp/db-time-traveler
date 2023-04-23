@@ -77,13 +77,13 @@ func (c *Config) FindConnection(targetConnectionName string) (*ConnectionConfig,
 	return nil, errors.New("Default Connection is not found")
 }
 
-func (connection *ConnectionConfig) CreateDatabaseConnection() (*DatabaseConnection, error) {
+func (conn *ConnectionConfig) CreateDatabaseConnection() (*DatabaseConnection, error) {
 	var dap DatabaseAccessPointHub
 	var err error
-	if connection.SSHHost != "" {
-		dap, err = connection.toDapOnSSH()
+	if conn.SSHHost != "" {
+		dap, err = conn.toDapOnSSH()
 	} else {
-		dap, err = connection.toDapWithoutSSH()
+		dap, err = conn.toDapWithoutSSH()
 	}
 	if err != nil {
 		return nil, err
@@ -91,35 +91,35 @@ func (connection *ConnectionConfig) CreateDatabaseConnection() (*DatabaseConnect
 	return dap.CreateDatabaseConnection()
 }
 
-func (connection *ConnectionConfig) toDapWithoutSSH() (*DatabaseAccessPoint, error) {
-	port, err := strconv.Atoi(connection.Port)
+func (conn *ConnectionConfig) toDapWithoutSSH() (*DatabaseAccessPoint, error) {
+	port, err := strconv.Atoi(conn.Port)
 	if err != nil {
 		return nil, err
 	}
 	return &DatabaseAccessPoint{
-		Username: connection.Username,
-		Password: connection.Password,
-		Host:     connection.Hostname,
+		Username: conn.Username,
+		Password: conn.Password,
+		Host:     conn.Hostname,
 		Port:     port,
-		Schema:   connection.Database,
+		Schema:   conn.Database,
 	}, nil
 }
 
-func (connection *ConnectionConfig) toDapOnSSH() (*DatabaseAccessPointOnSSH, error) {
+func (conn *ConnectionConfig) toDapOnSSH() (*DatabaseAccessPointOnSSH, error) {
 	return &DatabaseAccessPointOnSSH{
 		DB: &DB{
-			Host:     connection.Hostname,
-			Port:     connection.Port,
-			User:     connection.Username,
-			Password: connection.Password,
-			DBName:   connection.Database,
+			Host:     conn.Hostname,
+			Port:     conn.Port,
+			User:     conn.Username,
+			Password: conn.Password,
+			DBName:   conn.Database,
 		},
 		SSH: &SSH{
-			Key:        connection.SSHKeyPath,
-			Host:       connection.SSHHost,
-			User:       connection.SSHUser,
-			Port:       connection.SSHPort,
-			Passphrase: connection.SSHPassphrase,
+			Key:        conn.SSHKeyPath,
+			Host:       conn.SSHHost,
+			User:       conn.SSHUser,
+			Port:       conn.SSHPort,
+			Passphrase: conn.SSHPassphrase,
 		},
 	}, nil
 }
@@ -135,10 +135,10 @@ func LoadConfig(specifiedPath string) (*Config, error) {
 	return loadConfigFromYaml(path)
 }
 
-func (connection *ConnectionConfig) ToString() string {
-	ret := fmt.Sprintf("  Host: %s\n  Port: %s\n  Database: %s\n  Username: %s\n  Password: %s", connection.Hostname, connection.Port, connection.Database, connection.Username, connection.Password)
-	if connection.SSHHost != "" {
-		ret += fmt.Sprintf("\n  SSHHost: %s\n  SSHPort: %s\n  SSHUser: %s\n  SSHKeyPath: %s\n  SSHPathphrase: %s", connection.SSHHost, connection.SSHPort, connection.SSHUser, connection.SSHKeyPath, connection.SSHPassphrase)
+func (conn *ConnectionConfig) ToString() string {
+	ret := fmt.Sprintf("  Host: %s\n  Port: %s\n  Database: %s\n  Username: %s\n  Password: %s", conn.Hostname, conn.Port, conn.Database, conn.Username, conn.Password)
+	if conn.SSHHost != "" {
+		ret += fmt.Sprintf("\n  SSHHost: %s\n  SSHPort: %s\n  SSHUser: %s\n  SSHKeyPath: %s\n  SSHPathphrase: %s", conn.SSHHost, conn.SSHPort, conn.SSHUser, conn.SSHKeyPath, conn.SSHPassphrase)
 	}
 	return ret
 }
@@ -158,67 +158,67 @@ func (c *Config) ToString() string {
 	return ret
 }
 
-func (connection *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig, overridePort bool, overrideSSHPort bool) (*ConnectionConfig, error) {
+func (conn *ConnectionConfig) Override(prioritizedConnection *ConnectionConfig, overridePort bool, overrideSSHPort bool) (*ConnectionConfig, error) {
 	var ret ConnectionConfig
 	if prioritizedConnection.Name != "" {
 		ret.Name = prioritizedConnection.Name
 	} else {
-		ret.Name = connection.Name
+		ret.Name = conn.Name
 	}
 	if prioritizedConnection.Driver != "" {
 		ret.Driver = prioritizedConnection.Driver
 	} else {
-		ret.Driver = connection.Driver
+		ret.Driver = conn.Driver
 	}
 	if prioritizedConnection.Hostname != "" {
 		ret.Hostname = prioritizedConnection.Hostname
 	} else {
-		ret.Hostname = connection.Hostname
+		ret.Hostname = conn.Hostname
 	}
 	if overridePort {
 		ret.Port = prioritizedConnection.Port
 	} else {
-		ret.Port = connection.Port
+		ret.Port = conn.Port
 	}
 	if prioritizedConnection.Username != "" {
 		ret.Username = prioritizedConnection.Username
 	} else {
-		ret.Username = connection.Username
+		ret.Username = conn.Username
 	}
 	if prioritizedConnection.Password != "" {
 		ret.Password = prioritizedConnection.Password
 	} else {
-		ret.Password = connection.Password
+		ret.Password = conn.Password
 	}
 	if prioritizedConnection.Database != "" {
 		ret.Database = prioritizedConnection.Database
 	} else {
-		ret.Database = connection.Database
+		ret.Database = conn.Database
 	}
 	if prioritizedConnection.SSHKeyPath != "" {
 		ret.SSHKeyPath = prioritizedConnection.SSHKeyPath
 	} else {
-		ret.SSHKeyPath = connection.SSHKeyPath
+		ret.SSHKeyPath = conn.SSHKeyPath
 	}
 	if prioritizedConnection.SSHHost != "" {
 		ret.SSHHost = prioritizedConnection.SSHHost
 	} else {
-		ret.SSHHost = connection.SSHHost
+		ret.SSHHost = conn.SSHHost
 	}
 	if overrideSSHPort {
 		ret.SSHPort = prioritizedConnection.SSHPort
 	} else {
-		ret.SSHPort = connection.SSHPort
+		ret.SSHPort = conn.SSHPort
 	}
 	if prioritizedConnection.SSHUser != "" {
 		ret.SSHUser = prioritizedConnection.SSHUser
 	} else {
-		ret.SSHUser = connection.SSHUser
+		ret.SSHUser = conn.SSHUser
 	}
 	if prioritizedConnection.SSHPassphrase != "" {
 		ret.SSHPassphrase = prioritizedConnection.SSHPassphrase
 	} else {
-		ret.SSHPassphrase = connection.SSHPassphrase
+		ret.SSHPassphrase = conn.SSHPassphrase
 	}
 	return &ret, nil
 }
