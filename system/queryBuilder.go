@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type QueryBuilderSourcePartOfInterval struct {
+type Interval struct {
 	IsPast bool
 	Num    int
 	Term   string
@@ -25,10 +25,10 @@ type QueryBuilderSourceForColumnValues struct {
 
 type QueryBuilderSourceToUpdate struct {
 	QueryBuilderSourceForColumnValues
-	QueryBuilderSourcePartOfInterval
+	Interval
 }
 
-func (q *QueryBuilderSourcePartOfInterval) buildInterval() string {
+func (q *Interval) buildInterval() string {
 	var symbol string
 	if q.IsPast {
 		symbol = "-"

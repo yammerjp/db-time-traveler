@@ -20,7 +20,7 @@ func TestParsePast(t *testing.T) {
 }
 
 func TestParseInterval(t *testing.T) {
-	expected := system.QueryBuilderSourcePartOfInterval{
+	expected := system.Interval{
 		IsPast: false,
 		Num:    3,
 		Term:   "MONTH",

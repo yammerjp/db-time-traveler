@@ -17,7 +17,7 @@ func TestBuildStmtToUpdateWithPrimaryKeyValue(t *testing.T) {
 			primaryKeys:   []string{"id"},
 			stmtInWhereIn: "3",
 		},
-		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+		Interval: Interval{
 			IsPast: true,
 			Num:    1,
 			Term:   "MONTH",
@@ -44,7 +44,7 @@ func TestBuildStmtToUpdateWithSelectStmt(t *testing.T) {
 			primaryKeys:   []string{"id"},
 			stmtInWhereIn: "SELECT id FROM accounts",
 		},
-		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+		Interval: Interval{
 			IsPast: true,
 			Num:    1,
 			Term:   "MONTH",
@@ -89,7 +89,7 @@ func TestBuildStmtToSelectUpdatingColumnValues(t *testing.T) {
 			primaryKeys:   []string{"id"},
 			stmtInWhereIn: "3",
 		},
-		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+		Interval: Interval{
 			IsPast: true,
 			Num:    1,
 			Term:   "MONTH",
@@ -143,7 +143,7 @@ func TestBuildStmtToSelectBeforeAndAfter(t *testing.T) {
 			primaryKeys:   []string{"id"},
 			stmtInWhereIn: "3",
 		},
-		QueryBuilderSourcePartOfInterval: QueryBuilderSourcePartOfInterval{
+		Interval: Interval{
 			IsPast: true,
 			Num:    1,
 			Term:   "MONTH",
